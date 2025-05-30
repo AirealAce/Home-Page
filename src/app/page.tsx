@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTwitter, faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
   return (
@@ -43,7 +42,7 @@ export default function Home() {
               borderRadius: '50%'
             }}
           />
-          <h1 className="display-4 mb-4 text-white">hi, i'm aaron</h1>
+          <h1 className="display-4 mb-4 text-white">hi, I&apos;m aaron</h1>
           <div className="brands-section mt-5">
             <p className="text-muted mb-4">As seen in:</p>
             <div className="row justify-content-center align-items-center">
@@ -85,9 +84,9 @@ export default function Home() {
           <h2 className="section-title">ABOUT</h2>
           <div className="row justify-content-center">
             <div className="col-lg-8">
-              <p className="lead text-center">Hi! Thank you for visiting my site. I'm Aaron.</p>
-              <p>I spend my days as a full-stack developer, creating innovative web solutions and exploring new technologies. I've worked on various projects ranging from e-commerce platforms to data visualization tools.</p>
-              <p>When I'm not coding, I'm either writing about technology, creating content, or working on my side projects. I believe in sharing knowledge and helping others learn.</p>
+              <p className="lead text-center">Hi! Thank you for visiting my site. I&apos;m Aaron.</p>
+              <p>I spend my days as a full-stack developer, creating innovative web solutions and exploring new technologies. I&apos;ve worked on various projects ranging from e-commerce platforms to data visualization tools.</p>
+              <p>When I&apos;m not coding, I&apos;m either writing about technology, creating content, or working on my side projects. I believe in sharing knowledge and helping others learn.</p>
               <div className="highlights mt-4">
                 <h3 className="h5 mb-3">Here are a few fun highlights:</h3>
                 <ul>

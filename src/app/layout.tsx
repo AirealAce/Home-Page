@@ -4,6 +4,7 @@ import './globals.css'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Script from 'next/script'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 config.autoAddCss = false
 
@@ -25,14 +26,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link 
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" 
-          rel="stylesheet"
-        />
-        <link href="/css/styles.css" rel="stylesheet" />
-        <link href="/css/mystyles.css" rel="stylesheet" />
-      </head>
       <body className={inter.className} suppressHydrationWarning={true}>
         {children}
         <Script 
