@@ -1,4 +1,7 @@
+/* Temporarily commenting out everything to test Vercel deployment
+
 /* Variables */
+/*
 :root {
   --text-dark: #f8f9fa;
   --light-bg: #1a1a1a;
@@ -10,10 +13,11 @@
   --dark-bg: #121212;
   --dark-bg-lighter: #1a1a1a;
   --border-width: 3px;
-  --hero-bg: #007bff;
 }
+*/
 
 /* Base styles */
+/*
 * {
   box-sizing: border-box;
   padding: 0;
@@ -25,8 +29,10 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
 }
+*/
 
 /* Dark theme */
+/*
 .dark {
   background-color: var(--dark-bg);
   color: var(--text-dark);
@@ -79,8 +85,10 @@ body {
 .dark #about .highlights li {
   margin-bottom: 0.5rem;
 }
+*/
 
 /* Navbar styles */
+/*
 .navbar {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 1rem 0;
@@ -102,8 +110,10 @@ body {
 .nav-link:hover {
   color: #333;
 }
+*/
 
 /* Hero section styles */
+/*
 .hero-section {
   background-color: var(--dark-bg-lighter);
   min-height: 100vh;
@@ -131,8 +141,10 @@ body {
 .brands-section .col-auto {
   margin: 0 1rem;
 }
+*/
 
 /* Page sections */
+/*
 .page-section {
   padding: 6rem 0;
   border-top: var(--border-width) solid var(--mint);
@@ -158,8 +170,10 @@ body {
   height: 3px;
   background: var(--mint);
 }
+*/
 
 /* Project cards */
+/*
 .project-card {
   background: white;
   border-radius: 10px;
@@ -202,8 +216,10 @@ body {
   margin: 0.25rem;
   border: 1px solid var(--mint);
 }
+*/
 
 /* Footer */
+/*
 .footer {
   background: #1a1a1a;
   color: white;
@@ -226,8 +242,10 @@ body {
 .social-icon:hover {
   color: var(--mint);
 }
+*/
 
 /* Responsive adjustments */
+/*
 @media (max-width: 768px) {
   .hero-section {
     padding: 4rem 0;
@@ -241,4 +259,5 @@ body {
   .project-card {
     margin-bottom: 2rem;
   }
-} 
+}
+*/ 
