@@ -115,6 +115,7 @@ export default function Home() {
                   Collection of web development projects showcasing modern technologies and best practices.
                 </p>
                 <div className="project-links">
+                  <Link href="https://internetcomputing.aaronmills.co" className="btn btn-sm btn-outline-primary">Project 0</Link>
                   <Link href="https://internetcomputing.aaronmills.co/p1" className="btn btn-sm btn-outline-primary">Project 1</Link>
                   <Link href="https://internetcomputing.aaronmills.co/p2" className="btn btn-sm btn-outline-primary">Project 2</Link>
                   <Link href="https://internetcomputing.aaronmills.co/p3" className="btn btn-sm btn-outline-primary">Project 3</Link>
