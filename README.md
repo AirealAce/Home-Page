@@ -1,4 +1,4 @@
-![Portfolio Preview](./day4.gif)
+![Portfolio Preview](day4.gif)
 
 # Aaron Mills Portfolio
 
