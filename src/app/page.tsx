@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTwitter, faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
-import { useSoundEffects } from '../hooks/useSoundEffects';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { VolumeSlider } from '../components/VolumeSlider';
 
 export default function Home() {
