@@ -8,7 +8,7 @@ import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { VolumeSlider } from '../components/VolumeSlider';
 
 export default function Home() {
-  const { onHover, onClick, onFocus } = useSoundEffects();
+  const { onHover, onClick } = useSoundEffects();
 
   return (
     <>
