@@ -132,6 +132,8 @@ export default function Home() {
                 </p>
                 <div className="project-links">
                   {/* Add site links here if needed */}
+                  <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
+                  <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
                 </div>
               </div>
             </div>
@@ -161,6 +163,11 @@ export default function Home() {
                   <Link href="https://voicenoter.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Voice Noter</Link>
                   <Link href="https://createinc.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Create.Inc</Link>
                   <Link href="https://mock.hobedesignhouse.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Hobe Design House</Link>
+                  <Link href="https://demo-jump-game.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Demo Game</Link>
+                  <Link href="https://kawaiistudio.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>KawaiiStudio</Link>
+                  <Link href="https://sonicmon.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Sonimon</Link>
+                  <Link href="https://translator.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Translator</Link>
+                  <Link href="https://spritesaga.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Sprite Saga</Link>
                 </div>
               </div>
             </div>
