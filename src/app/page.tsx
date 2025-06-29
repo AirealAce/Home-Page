@@ -101,15 +101,14 @@ export default function Home() {
           <div className="row justify-content-center">
             <div className="col-lg-8">
               <p className="lead text-center">Hi! Thank you for visiting my site. I&apos;m Aaron.</p>
-              <p>I spend my days as a full-stack developer, creating innovative web solutions and exploring new technologies. I&apos;ve worked on various projects ranging from e-commerce platforms to data visualization tools.</p>
+              <p>I spend my days vibe coding, creating innovative web applications and exploring valuable AI technologies. I&apos;ve worked on various projects ranging from automation workflows to browser extensions.</p>
               <p>When I&apos;m not coding, I&apos;m either writing about technology, creating content, or working on my side projects. I believe in sharing knowledge and helping others learn.</p>
               <div className="highlights mt-4">
                 <h3 className="h5 mb-3">Here are a few fun highlights:</h3>
                 <ul>
-                  <li>Built several successful web applications</li>
-                  <li>Contributed to open-source projects</li>
+                  <li>Built several web applications</li>
                   <li>Created technical content that helps others learn</li>
-                  <li>Worked with various technologies and frameworks</li>
+                  <li>Worked with various AI technologies and frameworks</li>
                 </ul>
               </div>
             </div>
