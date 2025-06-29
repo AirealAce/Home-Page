@@ -6,6 +6,145 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTwitter, faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { VolumeSlider } from '../components/VolumeSlider';
+import { useState } from 'react';
+
+// Paginated Project Card Component
+const PaginatedProjectCard = ({ 
+  icon, 
+  title, 
+  description, 
+  links, 
+  onHover, 
+  onClick 
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  links: { href: string; text: string }[];
+  onHover: () => void;
+  onClick: () => void;
+}) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const linksPerPage = 6;
+  const totalPages = Math.ceil(links.length / linksPerPage);
+  
+  const startIndex = currentPage * linksPerPage;
+  const endIndex = startIndex + linksPerPage;
+  const currentLinks = links.slice(startIndex, endIndex);
+
+  const nextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  return (
+    <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+      <i className={`${icon} project-icon`}></i>
+      <h3 className="project-title">{title}</h3>
+      <p className="project-description">{description}</p>
+      <div className="project-links" style={{ minHeight: '120px', flex: '1' }}>
+        {currentLinks.map((link, index) => (
+          <Link 
+            key={index}
+            href={link.href} 
+            className="btn btn-sm btn-outline-primary" 
+            style={{
+              minWidth: '80px',
+              height: '32px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.875rem',
+              padding: '0.25rem 0.5rem'
+            }}
+            onMouseEnter={onHover} 
+            onClick={onClick}
+          >
+            {link.text}
+          </Link>
+        ))}
+      </div>
+      {totalPages > 1 && (
+        <div className="pagination-controls" style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          gap: '1rem', 
+          marginTop: '1rem' 
+        }}>
+          <button 
+            onClick={prevPage} 
+            disabled={currentPage === 0}
+            className="btn btn-sm"
+            style={{ 
+              borderRadius: '50%', 
+              width: '40px', 
+              height: '40px', 
+              padding: '0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid #8B0000',
+              backgroundColor: 'transparent',
+              color: '#8B0000',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              onHover();
+              e.currentTarget.style.backgroundColor = '#8B0000';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#8B0000';
+            }}
+          >
+            ←
+          </button>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+            {currentPage + 1} / {totalPages}
+          </span>
+          <button 
+            onClick={nextPage} 
+            disabled={currentPage === totalPages - 1}
+            className="btn btn-sm"
+            style={{ 
+              borderRadius: '50%', 
+              width: '40px', 
+              height: '40px', 
+              padding: '0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid #8B0000',
+              backgroundColor: 'transparent',
+              color: '#8B0000',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              onHover();
+              e.currentTarget.style.backgroundColor = '#8B0000';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#8B0000';
+            }}
+          >
+            →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function Home() {
   const { onHover, onClick } = useSoundEffects();
@@ -31,11 +170,9 @@ export default function Home() {
               <li className="nav-item">
                 <VolumeSlider />
               </li>
-              <li className="nav-item"><Link className="nav-link" href="#made" onMouseEnter={onHover} onClick={onClick}>MADE</Link></li>
-              <li className="nav-item"><Link className="nav-link" href="#more" onMouseEnter={onHover} onClick={onClick}>MORE</Link></li>
-              <li className="nav-item"><Link className="nav-link" href="#blog" onMouseEnter={onHover} onClick={onClick}>BLOG</Link></li>
+              <li className="nav-item"><Link className="nav-link" href="#about" onMouseEnter={onHover} onClick={onClick}>ABOUT</Link></li>
+              <li className="nav-item"><Link className="nav-link" href="#services" onMouseEnter={onHover} onClick={onClick}>SERVICES</Link></li>
               <li className="nav-item"><Link className="nav-link" href="#projects" onMouseEnter={onHover} onClick={onClick}>PROJECTS</Link></li>
-              <li className="nav-item"><Link className="nav-link" href="#subscribe" onMouseEnter={onHover} onClick={onClick}>SUBSCRIBE</Link></li>
               <li className="nav-item"><Link className="nav-link" href="#contact" onMouseEnter={onHover} onClick={onClick}>CONTACT</Link></li>
             </ul>
           </div>
@@ -95,17 +232,17 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section className="page-section" id="about">
+      <section className="page-section" id="about" style={{ backgroundColor: '#d0d0d0', color: '#333' }}>
         <div className="container">
-          <h2 className="section-title">ABOUT</h2>
+          <h2 className="section-title" style={{ color: '#333' }}>ABOUT</h2>
           <div className="row justify-content-center">
             <div className="col-lg-8">
-              <p className="lead text-center">Hi! Thank you for visiting my site. I&apos;m Aaron.</p>
-              <p>I spend my days vibe coding, creating innovative web applications and exploring valuable AI technologies. I&apos;ve worked on various projects ranging from automation workflows to browser extensions.</p>
-              <p>When I&apos;m not coding, I&apos;m either writing about technology, creating content, or working on my side projects. I believe in sharing knowledge and helping others learn.</p>
-              <div className="highlights mt-4">
-                <h3 className="h5 mb-3">Here are a few fun highlights:</h3>
-                <ul>
+              <p className="lead text-center" style={{ color: '#333' }}>Hi! Thank you for visiting my site. I&apos;m Aaron.</p>
+              <p style={{ color: '#333' }}>I spend my days vibe coding, creating innovative web applications and exploring valuable AI technologies. I&apos;ve worked on various projects ranging from automation workflows to browser extensions.</p>
+              <p style={{ color: '#333' }}>When I&apos;m not coding, I&apos;m either writing about technology, creating content, or working on my side projects. I believe in sharing knowledge and helping others learn.</p>
+              <div className="highlights mt-4" style={{ backgroundColor: '#c0c0c0', padding: '2rem', borderRadius: '10px', border: '2px solid #dee2e6' }}>
+                <h3 className="h5 mb-3" style={{ color: '#333' }}>Here are a few fun highlights:</h3>
+                <ul style={{ color: '#333' }}>
                   <li>Built several web applications</li>
                   <li>Created technical content that helps others learn</li>
                   <li>Worked with various AI technologies and frameworks</li>
@@ -116,20 +253,164 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Services Section */}
+      <section className="page-section" id="services" style={{ backgroundColor: '#000', color: '#fff' }}>
+        <div className="container">
+          <h2 className="section-title text-center" style={{ color: '#fff' }}>SERVICES</h2>
+          <div className="row justify-content-center mb-2">
+            <div className="col-lg-8">
+              <p className="lead text-center" style={{ color: '#fff' }}>
+                I offer elegantly packaged digital solutions for individuals and businesses, which range from automation agentic systems to mock ups, web apps, extensions, and bots.
+              </p>
+              <p className="text-center" style={{ color: '#fff', fontStyle: 'italic', marginTop: '1rem' }}>
+                If interested, DM me <a href="https://x.com/aaronmiruzu" target="_blank" rel="noopener noreferrer" style={{ color: '#1DA1F2', textDecoration: 'none' }} onMouseEnter={onHover} onClick={onClick}>here on X.</a>
+              </p>
+            </div>
+          </div>
+          <div className="row g-4">
+            {/* Automation Agentic Systems */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
+                <div style={{ flex: '1' }}>
+                  <i className="fas fa-robot project-icon" style={{ color: '#1abc9c' }}></i>
+                  <h3 className="project-title" style={{ color: '#fff' }}>Automation Systems</h3>
+                  <p className="project-description" style={{ color: '#adb5bd' }}>
+                    Intelligent automation solutions that streamline workflows and boost productivity for businesses.
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-sm btn-outline-success" 
+                  style={{ 
+                    borderRadius: '25px', 
+                    marginTop: 'auto', 
+                    marginBottom: '0',
+                    alignSelf: 'center'
+                  }}
+                  onMouseEnter={onHover} 
+                  onClick={onClick}
+                >
+                  $1 each
+                </button>
+              </div>
+            </div>
+            {/* Mockups */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
+                <div style={{ flex: '1' }}>
+                  <i className="fas fa-palette project-icon" style={{ color: '#1abc9c' }}></i>
+                  <h3 className="project-title" style={{ color: '#fff' }}>Mockups</h3>
+                  <p className="project-description" style={{ color: '#adb5bd' }}>
+                    Professional design mockups and prototypes to visualize your ideas before development.
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-sm btn-outline-success" 
+                  style={{ 
+                    borderRadius: '25px', 
+                    marginTop: 'auto', 
+                    marginBottom: '0',
+                    alignSelf: 'center'
+                  }}
+                  onMouseEnter={onHover} 
+                  onClick={onClick}
+                >
+                  $1 each
+                </button>
+              </div>
+            </div>
+            {/* Web Apps */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
+                <div style={{ flex: '1' }}>
+                  <i className="fas fa-globe project-icon" style={{ color: '#1abc9c' }}></i>
+                  <h3 className="project-title" style={{ color: '#fff' }}>Web Apps</h3>
+                  <p className="project-description" style={{ color: '#adb5bd' }}>
+                    Custom web applications built with modern technologies and best practices.
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-sm btn-outline-success" 
+                  style={{ 
+                    borderRadius: '25px', 
+                    marginTop: 'auto', 
+                    marginBottom: '0',
+                    alignSelf: 'center'
+                  }}
+                  onMouseEnter={onHover} 
+                  onClick={onClick}
+                >
+                  $1 each
+                </button>
+              </div>
+            </div>
+            {/* Extensions */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
+                <div style={{ flex: '1' }}>
+                  <i className="fas fa-puzzle-piece project-icon" style={{ color: '#1abc9c' }}></i>
+                  <h3 className="project-title" style={{ color: '#fff' }}>Extensions</h3>
+                  <p className="project-description" style={{ color: '#adb5bd' }}>
+                    Browser extensions and add-ons that enhance functionality and user experience.
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-sm btn-outline-success" 
+                  style={{ 
+                    borderRadius: '25px', 
+                    marginTop: 'auto', 
+                    marginBottom: '0',
+                    alignSelf: 'center'
+                  }}
+                  onMouseEnter={onHover} 
+                  onClick={onClick}
+                >
+                  $1 each
+                </button>
+              </div>
+            </div>
+            {/* Bots */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
+                <div style={{ flex: '1' }}>
+                  <i className="fas fa-comments project-icon" style={{ color: '#1abc9c' }}></i>
+                  <h3 className="project-title" style={{ color: '#fff' }}>Bots</h3>
+                  <p className="project-description" style={{ color: '#adb5bd' }}>
+                    Intelligent chatbots and automation bots for customer service and process automation.
+                  </p>
+                </div>
+                <button 
+                  className="btn btn-sm btn-outline-success" 
+                  style={{ 
+                    borderRadius: '25px', 
+                    marginTop: 'auto', 
+                    marginBottom: '0',
+                    alignSelf: 'center'
+                  }}
+                  onMouseEnter={onHover} 
+                  onClick={onClick}
+                >
+                  $1 each
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Projects Section */}
-      <section className="page-section bg-light" id="projects">
+      <section className="page-section" id="projects" style={{ backgroundColor: '#d0d0d0' }}>
         <div className="container">
           <h2 className="section-title text-center">PROJECTS</h2>
           <div className="row g-4">
             {/* Project Cards */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover}>
+              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
                 <i className="fas fa-globe project-icon"></i>
                 <h3 className="project-title">Sites Syndicate</h3>
                 <p className="project-description">
                   Portfolio of my websites and web apps.
                 </p>
-                <div className="project-links">
+                <div className="project-links" style={{ flex: '1' }}>
                   {/* Add site links here if needed */}
                   <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
                   <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
@@ -138,64 +419,62 @@ export default function Home() {
             </div>
             {/* Extension Empire */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover}>
+              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
                 <i className="fas fa-puzzle-piece project-icon"></i>
                 <h3 className="project-title">Extension Empire</h3>
                 <p className="project-description">
                   Browser extensions and automation tools.
                 </p>
-                <div className="project-links">
+                <div className="project-links" style={{ flex: '1' }}>
                   {/* Add extension links here if needed */}
                 </div>
               </div>
             </div>
             {/* Sample Projects */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover}>
-                <i className="fas fa-music project-icon"></i>
-                <h3 className="project-title">Sample Projects</h3>
-                <p className="project-description">
-                  Mock up, sample projects, and scrapped ideas.
-                </p>
-                <div className="project-links">
-                  <Link href="https://royalchat.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Royal Chat</Link>
-                  <Link href="https://voicenoter.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Voice Noter</Link>
-                  <Link href="https://createinc.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Create.Inc</Link>
-                  <Link href="https://mock.hobedesignhouse.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Hobe Design House</Link>
-                  <Link href="https://demo-jump-game.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Demo Game</Link>
-                  <Link href="https://kawaiistudio.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>KawaiiStudio</Link>
-                  <Link href="https://sonicmon.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Sonimon</Link>
-                  <Link href="https://translator.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Translator</Link>
-                  <Link href="https://spritesaga.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Sprite Saga</Link>
-                </div>
-              </div>
+              <PaginatedProjectCard
+                icon="fas fa-music"
+                title="Sample Projects"
+                description="Mock up, sample projects, and scrapped ideas."
+                links={[
+                  { href: "https://royalchat.aaronmills.co", text: "Royal Chat" },
+                  { href: "https://voicenoter.aaronmills.co", text: "Voice Noter" },
+                  { href: "https://createinc.aaronmills.co", text: "Create.Inc" },
+                  { href: "https://mock.hobedesignhouse.aaronmills.co", text: "Hobe Design House" },
+                  { href: "https://demo-jump-game.aaronmills.co", text: "Demo Game" },
+                  { href: "https://kawaiistudio.aaronmills.co", text: "KawaiiStudio" },
+                  { href: "https://sonicmon.aaronmills.co", text: "Sonimon" },
+                  { href: "https://translator.aaronmills.co", text: "Translator" },
+                  { href: "https://spritesaga.aaronmills.co", text: "Sprite Saga" }
+                ]}
+                onHover={onHover}
+                onClick={onClick}
+              />
             </div>
             {/* Academic Projects */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover}>
-                <i className="fas fa-laptop-code project-icon"></i>
-                <h3 className="project-title">Academic Projects</h3>
-                <p className="project-description">
-                  Collection of web development and full-stack apps completed at Florida Atlantic University.
-                </p>
-                <div className="project-links">
-                  {/* Internet Computing Projects */}
-                  <Link href="https://internetcomputing.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Project 0</Link>
-                  <Link href="https://internetcomputing.aaronmills.co/p1" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Project 1</Link>
-                  <Link href="https://internetcomputing.aaronmills.co/p2" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Project 2</Link>
-                  <Link href="https://internetcomputing.aaronmills.co/p3" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Project 3</Link>
-                  <Link href="https://internetcomputing.aaronmills.co/p4" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Project 4</Link>
-                  {/* Full-Stack Projects */}
-                  <Link href="https://jpstudy.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>JP Study</Link>
-                  <Link href="https://flashcards.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Flashcards</Link>
-                  <Link href="https://flashcards2.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Flashcards 2</Link>
-                  <Link href="https://catmaker.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Cat Maker</Link>
-                  <Link href="https://recipes.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Recipes</Link>
-                  <Link href="https://recipestatistics.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Recipe Stats</Link>
-                  <Link href="https://characterparty.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Character Party</Link>
-                  <Link href="https://preneurmanure.aaronmills.co" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Preneur Manure</Link>
-                </div>
-              </div>
+              <PaginatedProjectCard
+                icon="fas fa-laptop-code"
+                title="Academic Projects"
+                description="Collection of web development and full-stack apps completed at Florida Atlantic University."
+                links={[
+                  { href: "https://internetcomputing.aaronmills.co", text: "Project 0" },
+                  { href: "https://internetcomputing.aaronmills.co/p1", text: "Project 1" },
+                  { href: "https://internetcomputing.aaronmills.co/p2", text: "Project 2" },
+                  { href: "https://internetcomputing.aaronmills.co/p3", text: "Project 3" },
+                  { href: "https://internetcomputing.aaronmills.co/p4", text: "Project 4" },
+                  { href: "https://jpstudy.aaronmills.co", text: "JP Study" },
+                  { href: "https://flashcards.aaronmills.co", text: "Flashcards" },
+                  { href: "https://flashcards2.aaronmills.co", text: "Flashcards 2" },
+                  { href: "https://catmaker.aaronmills.co", text: "Cat Maker" },
+                  { href: "https://recipes.aaronmills.co", text: "Recipes" },
+                  { href: "https://recipestatistics.aaronmills.co", text: "Recipe Stats" },
+                  { href: "https://characterparty.aaronmills.co", text: "Character Party" },
+                  { href: "https://preneurmanure.aaronmills.co", text: "Preneur Manure" }
+                ]}
+                onHover={onHover}
+                onClick={onClick}
+              />
             </div>
           </div>
         </div>
