@@ -230,26 +230,28 @@ body {
 }
 
 .project-links {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex !important;
+  flex-wrap: wrap !important;
   gap: 0.5rem;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: center !important;
+  align-items: flex-start !important;
   min-height: 48px;
-  align-content: flex-start;
+  align-content: flex-start !important;
 }
 
 .project-links .btn {
-  align-self: flex-start;
-  height: auto;
+  align-self: flex-start !important;
+  height: 32px !important;
   margin: 0.25rem;
   border: 1px solid var(--mint);
-  flex-shrink: 0;
-  min-height: 32px;
-  max-height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0 !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.875rem !important;
 }
 
 /* Footer */

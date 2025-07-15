@@ -412,8 +412,40 @@ export default function Home() {
                 </p>
                 <div className="project-links" style={{ flex: '1', alignContent: 'flex-start' }}>
                   {/* Add site links here if needed */}
-                  <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
-                  <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
+                  <Link 
+                    href="https://habithall.com" 
+                    className="btn btn-sm btn-outline-primary" 
+                    style={{
+                      minWidth: '80px',
+                      height: '32px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.875rem',
+                      padding: '0.25rem 0.5rem'
+                    }}
+                    onMouseEnter={onHover} 
+                    onClick={onClick}
+                  >
+                    Habit Hall
+                  </Link>
+                  <Link 
+                    href="https://insertsight.com" 
+                    className="btn btn-sm btn-outline-primary" 
+                    style={{
+                      minWidth: '80px',
+                      height: '32px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.875rem',
+                      padding: '0.25rem 0.5rem'
+                    }}
+                    onMouseEnter={onHover} 
+                    onClick={onClick}
+                  >
+                    Insert Sight
+                  </Link>
                 </div>
               </div>
             </div>
