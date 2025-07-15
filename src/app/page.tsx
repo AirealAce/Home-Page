@@ -410,20 +410,11 @@ export default function Home() {
                 <p className="project-description">
                   Portfolio of my websites and web apps.
                 </p>
-                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start' }}>
+                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start', minHeight: '120px' }}>
                   {/* Add site links here if needed */}
                   <Link 
                     href="https://habithall.com" 
-                    className="btn btn-sm btn-outline-primary" 
-                    style={{
-                      minWidth: '80px',
-                      height: '32px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.875rem',
-                      padding: '0.25rem 0.5rem'
-                    }}
+                    className="sites-syndicate-btn" 
                     onMouseEnter={onHover} 
                     onClick={onClick}
                   >
@@ -431,16 +422,7 @@ export default function Home() {
                   </Link>
                   <Link 
                     href="https://insertsight.com" 
-                    className="btn btn-sm btn-outline-primary" 
-                    style={{
-                      minWidth: '80px',
-                      height: '32px',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.875rem',
-                      padding: '0.25rem 0.5rem'
-                    }}
+                    className="sites-syndicate-btn" 
                     onMouseEnter={onHover} 
                     onClick={onClick}
                   >
@@ -457,7 +439,7 @@ export default function Home() {
                 <p className="project-description">
                   Browser extensions and automation tools.
                 </p>
-                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start' }}>
+                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start', minHeight: '120px' }}>
                   {/* Add extension links here if needed */}
                 </div>
               </div>

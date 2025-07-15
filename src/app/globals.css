@@ -254,6 +254,31 @@ body {
   font-size: 0.875rem !important;
 }
 
+/* Specific fix for Sites Syndicate buttons */
+.sites-syndicate-btn {
+  min-width: 80px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.875rem !important;
+  padding: 0.25rem 0.5rem !important;
+  margin: 0.25rem !important;
+  border: 1px solid var(--mint) !important;
+  flex-shrink: 0 !important;
+  text-decoration: none !important;
+  border-radius: 0.375rem !important;
+  transition: all 0.15s ease-in-out !important;
+  background-color: transparent !important;
+  color: var(--mint) !important;
+}
+
+.sites-syndicate-btn:hover {
+  background-color: var(--mint) !important;
+  color: white !important;
+  text-decoration: none !important;
+}
+
 /* Footer */
 .footer {
   background: #1a1a1a;
