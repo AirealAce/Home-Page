@@ -230,71 +230,19 @@ body {
 }
 
 .project-links {
-  display: flex !important;
-  flex-wrap: wrap !important;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  justify-content: center !important;
-  align-items: flex-start !important;
+  justify-content: center;
+  align-items: flex-start;
   min-height: 48px;
-  align-content: flex-start !important;
 }
 
 .project-links .btn {
-  align-self: flex-start !important;
-  height: 32px !important;
+  align-self: flex-start;
+  height: auto;
   margin: 0.25rem;
   border: 1px solid var(--mint);
-  flex-shrink: 0 !important;
-  min-height: 32px !important;
-  max-height: 32px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0.25rem 0.5rem !important;
-  font-size: 0.875rem !important;
-}
-
-/* Specific fix for Sites Syndicate buttons */
-.sites-syndicate-btn {
-  min-width: 80px !important;
-  height: 32px !important;
-  max-height: 32px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 0.875rem !important;
-  padding: 0.25rem 0.5rem !important;
-  margin: 0.25rem !important;
-  border: 1px solid var(--mint) !important;
-  flex-shrink: 0 !important;
-  flex-grow: 0 !important;
-  flex-basis: auto !important;
-  text-decoration: none !important;
-  border-radius: 0.375rem !important;
-  transition: all 0.15s ease-in-out !important;
-  background-color: transparent !important;
-  color: var(--mint) !important;
-  box-sizing: border-box !important;
-  line-height: 1.5 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-.sites-syndicate-btn:hover {
-  background-color: var(--mint) !important;
-  color: white !important;
-  text-decoration: none !important;
-}
-
-/* Force override any Bootstrap or other CSS */
-.project-card .project-links .sites-syndicate-btn {
-  height: 32px !important;
-  max-height: 32px !important;
-  min-height: 32px !important;
-  flex-shrink: 0 !important;
-  flex-grow: 0 !important;
-  align-self: flex-start !important;
 }
 
 /* Footer */

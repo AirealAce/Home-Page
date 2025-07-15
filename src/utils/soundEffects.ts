@@ -10,6 +10,12 @@ class SoundEffects {
     if (typeof window !== 'undefined') {
       const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.audioContext = new AudioContextClass();
+      
+      // Load saved volume from localStorage
+      const savedVolume = localStorage.getItem('soundVolume');
+      if (savedVolume) {
+        this.volume = parseFloat(savedVolume);
+      }
     }
   }
 
@@ -58,13 +64,13 @@ class SoundEffects {
       if (!this.audioContext) return;
 
       const oscillator = this.createOscillator(880, 'sine');
-      const gainNode = this.createGainNode(0.1);
+      const gainNode = this.createGainNode(0.1 * this.volume);
 
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
       oscillator.start();
-      gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.1 * this.volume, this.audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.1);
       oscillator.stop(this.audioContext.currentTime + 0.1);
     } catch (error) {
@@ -80,13 +86,13 @@ class SoundEffects {
       if (!this.audioContext) return;
 
       const oscillator = this.createOscillator(440, 'square');
-      const gainNode = this.createGainNode(0.2);
+      const gainNode = this.createGainNode(0.2 * this.volume);
 
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
       oscillator.start();
-      gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.2 * this.volume, this.audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.1);
       oscillator.stop(this.audioContext.currentTime + 0.1);
     } catch (error) {
@@ -102,13 +108,13 @@ class SoundEffects {
       if (!this.audioContext) return;
 
       const oscillator = this.createOscillator(660, 'sine');
-      const gainNode = this.createGainNode(0.15);
+      const gainNode = this.createGainNode(0.15 * this.volume);
 
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
       oscillator.start();
-      gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.15 * this.volume, this.audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.15);
       oscillator.stop(this.audioContext.currentTime + 0.15);
     } catch (error) {
@@ -124,13 +130,13 @@ class SoundEffects {
       if (!this.audioContext) return;
 
       const oscillator = this.createOscillator(880, 'sine');
-      const gainNode = this.createGainNode(0.2);
+      const gainNode = this.createGainNode(0.2 * this.volume);
 
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
 
       oscillator.start();
-      gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+      gainNode.gain.setValueAtTime(0.2 * this.volume, this.audioContext.currentTime);
       oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
       oscillator.frequency.linearRampToValueAtTime(1320, this.audioContext.currentTime + 0.2);
       gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.2);
@@ -154,6 +160,12 @@ class SoundEffects {
 
   public getVolume(): number {
     return this.volume;
+  }
+
+  public setMuted(muted: boolean) {
+    if (muted) {
+      this.volume = 0;
+    }
   }
 }
 

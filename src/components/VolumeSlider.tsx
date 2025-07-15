@@ -4,13 +4,46 @@ import { useState, useEffect } from 'react';
 import { soundEffects } from '../utils/soundEffects';
 
 export const VolumeSlider = () => {
-  const [volume, setVolume] = useState(0.5); // Default volume at 50%
-  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(() => {
+    // Load volume from localStorage on component mount
+    if (typeof window !== 'undefined') {
+      const savedVolume = localStorage.getItem('soundVolume');
+      return savedVolume ? parseFloat(savedVolume) : 0.5;
+    }
+    return 0.5;
+  });
+  const [isMuted, setIsMuted] = useState(() => {
+    // Load mute state from localStorage on component mount
+    if (typeof window !== 'undefined') {
+      const savedMuted = localStorage.getItem('soundMuted');
+      return savedMuted ? JSON.parse(savedMuted) : false;
+    }
+    return false;
+  });
 
   useEffect(() => {
     // Update the actual volume in the sound effects
     soundEffects.setVolume(volume);
+    // Save volume to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soundVolume', volume.toString());
+    }
   }, [volume]);
+
+  useEffect(() => {
+    // Save mute state to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soundMuted', JSON.stringify(isMuted));
+    }
+  }, [isMuted]);
+
+  // Initialize sound effects with saved volume and mute state
+  useEffect(() => {
+    soundEffects.setVolume(volume);
+    if (isMuted) {
+      soundEffects.setVolume(0);
+    }
+  }, []); // Run only once on mount
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
@@ -22,9 +55,11 @@ export const VolumeSlider = () => {
     if (isMuted) {
       setVolume(0.5); // Restore to 50% when unmuting
       setIsMuted(false);
+      soundEffects.setVolume(0.5);
     } else {
       setVolume(0);
       setIsMuted(true);
+      soundEffects.setVolume(0);
     }
   };
 
