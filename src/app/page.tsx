@@ -151,48 +151,7 @@ export default function Home() {
 
   return (
     <>
-      <style jsx global>{`
-        .custom-fixed-btn {
-          min-width: 80px !important;
-          height: 32px !important;
-          max-height: 32px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          font-size: 0.875rem !important;
-          padding: 0.25rem 0.5rem !important;
-          margin: 0.25rem !important;
-          border: 1px solid #1abc9c !important;
-          flex-shrink: 0 !important;
-          flex-grow: 0 !important;
-          flex-basis: auto !important;
-          text-decoration: none !important;
-          border-radius: 0.375rem !important;
-          transition: all 0.15s ease-in-out !important;
-          background-color: transparent !important;
-          color: #1abc9c !important;
-          box-sizing: border-box !important;
-          line-height: 1.5 !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-        }
-        
-        .custom-fixed-btn:hover {
-          background-color: #1abc9c !important;
-          color: white !important;
-          text-decoration: none !important;
-        }
-        
-        .project-card .project-links .custom-fixed-btn {
-          height: 32px !important;
-          max-height: 32px !important;
-          min-height: 32px !important;
-          flex-shrink: 0 !important;
-          flex-grow: 0 !important;
-          align-self: flex-start !important;
-        }
-      `}</style>
+
       {/* Navigation */}
       <nav className="navbar navbar-expand-lg navbar-light fixed-top">
         <div className="container">
@@ -452,11 +411,20 @@ export default function Home() {
                 <p className="project-description">
                   Portfolio of my websites and web apps.
                 </p>
-                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start', minHeight: '120px' }}>
+                <div className="project-links" style={{ minHeight: '120px', flex: '1' }}>
                   {/* Add site links here if needed */}
                   <Link 
                     href="https://habithall.com" 
-                    className="custom-fixed-btn" 
+                    className="btn btn-sm btn-outline-primary" 
+                    style={{
+                      minWidth: '80px',
+                      height: '32px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.875rem',
+                      padding: '0.25rem 0.5rem'
+                    }}
                     onMouseEnter={onHover} 
                     onClick={onClick}
                   >
@@ -464,7 +432,16 @@ export default function Home() {
                   </Link>
                   <Link 
                     href="https://insertsight.com" 
-                    className="custom-fixed-btn" 
+                    className="btn btn-sm btn-outline-primary" 
+                    style={{
+                      minWidth: '80px',
+                      height: '32px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.875rem',
+                      padding: '0.25rem 0.5rem'
+                    }}
                     onMouseEnter={onHover} 
                     onClick={onClick}
                   >
