@@ -411,7 +411,7 @@ export default function Home() {
                 <p className="project-description">
                   Portfolio of my websites and web apps.
                 </p>
-                <div className="project-links" style={{ minHeight: '120px', flex: '1' }}>
+                <div className="project-links" style={{ minHeight: '120px', alignContent: 'flex-start' }}>
                   {/* Add site links here if needed */}
                   <Link 
                     href="https://habithall.com" 
