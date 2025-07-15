@@ -410,7 +410,7 @@ export default function Home() {
                 <p className="project-description">
                   Portfolio of my websites and web apps.
                 </p>
-                <div className="project-links" style={{ flex: '1' }}>
+                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start' }}>
                   {/* Add site links here if needed */}
                   <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
                   <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
@@ -425,7 +425,7 @@ export default function Home() {
                 <p className="project-description">
                   Browser extensions and automation tools.
                 </p>
-                <div className="project-links" style={{ flex: '1' }}>
+                <div className="project-links" style={{ flex: '1', alignContent: 'flex-start' }}>
                   {/* Add extension links here if needed */}
                 </div>
               </div>
