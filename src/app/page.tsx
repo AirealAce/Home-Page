@@ -411,19 +411,25 @@ export default function Home() {
                 <p className="project-description">
                   Portfolio of my websites and web apps.
                 </p>
-                <div className="project-links" style={{ minHeight: '120px', alignContent: 'flex-start' }}>
+                <div style={{ minHeight: '120px', display: 'block', textAlign: 'center' }}>
                   {/* Add site links here if needed */}
                   <Link 
                     href="https://habithall.com" 
                     className="btn btn-sm btn-outline-primary" 
                     style={{
                       minWidth: '80px',
+                      maxWidth: '120px',
                       height: '32px',
+                      maxHeight: '32px',
+                      minHeight: '32px',
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '0.875rem',
-                      padding: '0.25rem 0.5rem'
+                      padding: '0.25rem 0.5rem',
+                      flexShrink: 0,
+                      flexGrow: 0,
+                      alignSelf: 'flex-start'
                     }}
                     onMouseEnter={onHover} 
                     onClick={onClick}
@@ -435,12 +441,18 @@ export default function Home() {
                     className="btn btn-sm btn-outline-primary" 
                     style={{
                       minWidth: '80px',
+                      maxWidth: '120px',
                       height: '32px',
+                      maxHeight: '32px',
+                      minHeight: '32px',
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '0.875rem',
-                      padding: '0.25rem 0.5rem'
+                      padding: '0.25rem 0.5rem',
+                      flexShrink: 0,
+                      flexGrow: 0,
+                      alignSelf: 'flex-start'
                     }}
                     onMouseEnter={onHover} 
                     onClick={onClick}
