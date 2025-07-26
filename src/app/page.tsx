@@ -417,6 +417,32 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            {/* Automation Nation */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+                <i className="fas fa-robot project-icon"></i>
+                <h3 className="project-title">Automation Nation</h3>
+                <p className="project-description">
+                  A collection of my hand-crafted automation workflows.
+                </p>
+                <div className="project-links" style={{ flex: '1' }}>
+                  {/* Add automation links here if needed */}
+                </div>
+              </div>
+            </div>
+            {/* Media Mayhem */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+                <i className="fas fa-video project-icon"></i>
+                <h3 className="project-title">Media Mayhem</h3>
+                <p className="project-description">
+                  Checkout my YouTube channels, videos, and art.
+                </p>
+                <div className="project-links" style={{ flex: '1' }}>
+                  {/* Add media links here if needed */}
+                </div>
+              </div>
+            </div>
             {/* Extension Empire */}
             <div className="col-md-6 col-lg-4">
               <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
@@ -426,7 +452,7 @@ export default function Home() {
                   Browser extensions and automation tools.
                 </p>
                 <div className="project-links" style={{ flex: '1' }}>
-                  {/* Add extension links here if needed */}
+                  <Link href="https://github.com/AirealAce/tab-master" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Tab Master</Link>
                 </div>
               </div>
             </div>
