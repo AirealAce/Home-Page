@@ -463,6 +463,7 @@ export default function Home() {
                 title="Sample Projects"
                 description="Mock up, sample projects, and scrapped ideas."
                 links={[
+                  { href: "https://smash-spirit-clash.pages.dev", text: "Smash Spirit Clash" },
                   { href: "https://royalchat.aaronmills.co", text: "Royal Chat" },
                   { href: "https://voicenoter.aaronmills.co", text: "Voice Noter" },
                   { href: "https://createinc.aaronmills.co", text: "Create.Inc" },
