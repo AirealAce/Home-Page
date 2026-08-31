@@ -83,7 +83,7 @@ body {
 /* Navbar styles */
 .navbar {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1rem 0;
+  padding: 0.65rem 0;
   transition: all 0.3s ease;
   border-bottom: 2px solid var(--secondary-color);
 }
@@ -117,6 +117,20 @@ body {
   color: #333;
 }
 
+.volume-nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.volume-control {
+  height: 100%;
+  padding: 0.5rem 0;
+}
+
+.volume-control .form-range {
+  margin: 0;
+}
+
 .dark .nav-link:hover {
   color: var(--mint) !important;
 }
@@ -124,8 +138,8 @@ body {
 /* Add vertical line (border) between nav items */
 .nav-item:not(:first-child) {
   border-left: 1.5px solid #666;
-  margin-left: 1rem;
-  padding-left: 1rem;
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
 }
 
 .dark .nav-item:not(:first-child) {
@@ -144,26 +158,26 @@ body {
 /* Hero section styles */
 .hero-section {
   background-color: var(--dark-bg-lighter);
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 6rem 0;
+  padding: 5.5rem 0 3rem;
   border-bottom: var(--border-width) solid var(--mint);
 }
 
 .profile-image {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   border: 3px solid var(--mint);
-  width: 400px !important;
-  height: 400px !important;
+  width: 320px !important;
+  height: 320px !important;
   object-fit: cover;
 }
 
 .brands-section {
-  margin-top: 3rem;
+  margin-top: 1rem;
 }
 
 .brands-section .col-auto {
@@ -172,7 +186,7 @@ body {
 
 /* Page sections */
 .page-section {
-  padding: 6rem 0;
+  padding: 3.5rem 0;
   border-top: var(--border-width) solid var(--mint);
   border-bottom: var(--border-width) solid var(--mint);
   position: relative;
@@ -180,10 +194,10 @@ body {
 
 .section-title {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
   font-weight: 700;
   position: relative;
-  padding-bottom: 1rem;
+  padding-bottom: 0.65rem;
 }
 
 .section-title::after {
@@ -201,7 +215,7 @@ body {
 .project-card {
   background: white;
   border-radius: 10px;
-  padding: 2rem;
+  padding: 1.35rem;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   height: 100%;
@@ -214,19 +228,19 @@ body {
 }
 
 .project-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
   color: var(--mint);
 }
 
 .project-title {
-  margin-bottom: 1rem;
+  margin-bottom: 0.65rem;
   font-weight: 600;
 }
 
 .project-description {
   color: #666;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .project-links {
@@ -249,14 +263,14 @@ body {
 .footer {
   background: #1a1a1a;
   color: white;
-  padding: 3rem 0;
+  padding: 1.5rem 0;
   border-top: var(--border-width) solid var(--mint);
 }
 
 .social-links {
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .social-icon {
@@ -272,15 +286,15 @@ body {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 4rem 0;
+    padding: 5rem 0 2.5rem;
   }
   
   .profile-image {
-    width: 300px !important;
-    height: 300px !important;
+    width: 260px !important;
+    height: 260px !important;
   }
   
   .project-card {
-    margin-bottom: 2rem;
+    margin-bottom: 0;
   }
-} 
+}
