@@ -45,11 +45,11 @@ const PaginatedProjectCard = ({
   };
 
   return (
-    <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+    <div className="project-card" onMouseEnter={onHover} style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
       <i className={`${icon} project-icon`}></i>
       <h3 className="project-title">{title}</h3>
-      <p className="project-description">{description}</p>
-      <div className="project-links" style={{ minHeight: '120px', flex: '1' }}>
+      <p className="project-description" style={{ color: '#666' }}>{description}</p>
+      <div className="project-links" style={{ minHeight: '100px', flex: '1' }}>
         {currentLinks.map((link, index) => (
           <Link 
             key={index}
@@ -62,7 +62,9 @@ const PaginatedProjectCard = ({
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '0.875rem',
-              padding: '0.25rem 0.5rem'
+              padding: '0.25rem 0.5rem',
+              backgroundColor: '#000',
+              color: '#6ea8fe'
             }}
             onMouseEnter={onHover} 
             onClick={onClick}
@@ -76,8 +78,8 @@ const PaginatedProjectCard = ({
           display: 'flex', 
           justifyContent: 'center', 
           alignItems: 'center', 
-          gap: '1rem', 
-          marginTop: '1rem' 
+          gap: '0.75rem',
+          marginTop: '0.5rem'
         }}>
           <button 
             onClick={prevPage} 
@@ -85,15 +87,15 @@ const PaginatedProjectCard = ({
             className="btn btn-sm"
             style={{ 
               borderRadius: '50%', 
-              width: '40px', 
-              height: '40px', 
+              width: '34px',
+              height: '34px',
               padding: '0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               border: '2px solid #8B0000',
-              backgroundColor: 'transparent',
-              color: '#8B0000',
+              backgroundColor: '#000',
+              color: '#ff6b6b',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
@@ -102,8 +104,8 @@ const PaginatedProjectCard = ({
               e.currentTarget.style.color = '#fff';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#8B0000';
+              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.color = '#ff6b6b';
             }}
           >
             ←
@@ -117,15 +119,15 @@ const PaginatedProjectCard = ({
             className="btn btn-sm"
             style={{ 
               borderRadius: '50%', 
-              width: '40px', 
-              height: '40px', 
+              width: '34px',
+              height: '34px',
               padding: '0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               border: '2px solid #8B0000',
-              backgroundColor: 'transparent',
-              color: '#8B0000',
+              backgroundColor: '#000',
+              color: '#ff6b6b',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
@@ -134,8 +136,8 @@ const PaginatedProjectCard = ({
               e.currentTarget.style.color = '#fff';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#8B0000';
+              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.color = '#ff6b6b';
             }}
           >
             →
@@ -167,11 +169,11 @@ export default function Home() {
           </button>
           <div className="collapse navbar-collapse" id="navbarResponsive">
             <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
+              <li className="nav-item volume-nav-item">
                 <VolumeSlider />
               </li>
               <li className="nav-item"><Link className="nav-link" href="#about" onMouseEnter={onHover} onClick={onClick}>ABOUT</Link></li>
-              <li className="nav-item"><Link className="nav-link" href="#services" onMouseEnter={onHover} onClick={onClick}>SERVICES</Link></li>
+              {/* <li className="nav-item"><Link className="nav-link" href="#services" onMouseEnter={onHover} onClick={onClick}>SERVICES</Link></li> */}
               <li className="nav-item"><Link className="nav-link" href="#projects" onMouseEnter={onHover} onClick={onClick}>PROJECTS</Link></li>
               <li className="nav-item"><Link className="nav-link" href="#contact" onMouseEnter={onHover} onClick={onClick}>CONTACT</Link></li>
             </ul>
@@ -195,9 +197,9 @@ export default function Home() {
               borderRadius: '50%'
             }}
           />
-          <h1 className="display-4 mb-4 text-white">hi, I&apos;m aaron</h1>
-          <div className="brands-section mt-5">
-            <p className="text-muted mb-4">As seen in:</p>
+          <h1 className="display-4 mb-3 text-white">hi, I&apos;m aaron</h1>
+          <div className="brands-section mt-3">
+            <p className="text-muted mb-3">As seen in:</p>
             <div className="row justify-content-center align-items-center">
               <div className="col-auto">
                 <a href="https://x.com/aaronmiruzu" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }} onMouseEnter={onHover} onClick={onClick}>
@@ -232,7 +234,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section className="page-section" id="about" style={{ backgroundColor: '#d0d0d0', color: '#333' }}>
+      <section className="page-section" id="about" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
         <div className="container">
           <h2 className="section-title" style={{ color: '#333' }}>ABOUT</h2>
           <div className="row justify-content-center">
@@ -240,7 +242,7 @@ export default function Home() {
               <p className="lead text-center" style={{ color: '#333' }}>Hi! Thank you for visiting my site. I&apos;m Aaron.</p>
               <p style={{ color: '#333' }}>I spend my days vibe coding, creating innovative web applications and exploring valuable AI technologies. I&apos;ve worked on various projects ranging from automation workflows to browser extensions.</p>
               <p style={{ color: '#333' }}>When I&apos;m not coding, I&apos;m either writing about technology, creating content, or working on my side projects. I believe in sharing knowledge and helping others learn.</p>
-              <div className="highlights mt-4" style={{ backgroundColor: '#c0c0c0', padding: '2rem', borderRadius: '10px', border: '2px solid #dee2e6' }}>
+              <div className="highlights mt-3" style={{ backgroundColor: '#c0c0c0', padding: '1.25rem', borderRadius: '10px', border: '2px solid #dee2e6' }}>
                 <h3 className="h5 mb-3" style={{ color: '#333' }}>Here are a few fun highlights:</h3>
                 <ul style={{ color: '#333' }}>
                   <li>Built several web applications</li>
@@ -253,7 +255,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section
       <section className="page-section" id="services" style={{ backgroundColor: '#000', color: '#fff' }}>
         <div className="container">
           <h2 className="section-title text-center" style={{ color: '#fff' }}>SERVICES</h2>
@@ -267,8 +269,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="row g-4">
-            {/* Automation Agentic Systems */}
+          <div className="row g-3">
             <div className="col-md-6 col-lg-4">
               <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
                 <div style={{ flex: '1' }}>
@@ -293,7 +294,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            {/* Mockups */}
             <div className="col-md-6 col-lg-4">
               <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
                 <div style={{ flex: '1' }}>
@@ -318,7 +318,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            {/* Web Apps */}
             <div className="col-md-6 col-lg-4">
               <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
                 <div style={{ flex: '1' }}>
@@ -343,7 +342,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            {/* Extensions */}
             <div className="col-md-6 col-lg-4">
               <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
                 <div style={{ flex: '1' }}>
@@ -368,7 +366,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            {/* Bots */}
             <div className="col-md-6 col-lg-4">
               <div className="project-card" style={{ backgroundColor: '#1a1a1a', border: '2px solid #2c3e50', color: '#fff', display: 'flex', flexDirection: 'column', height: '100%' }} onMouseEnter={onHover}>
                 <div style={{ flex: '1' }}>
@@ -396,46 +393,59 @@ export default function Home() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Projects Section */}
-      <section className="page-section" id="projects" style={{ backgroundColor: '#d0d0d0' }}>
+      <section className="page-section" id="projects" style={{ backgroundColor: '#000', color: '#fff' }}>
         <div className="container">
-          <h2 className="section-title text-center">PROJECTS</h2>
-          <div className="row g-4">
+          <h2 className="section-title text-center" style={{ color: '#fff' }}>PROJECTS</h2>
+          <div className="row g-3">
             {/* Project Cards */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+              <div className="project-card" onMouseEnter={onHover} style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
                 <i className="fas fa-globe project-icon"></i>
-                <h3 className="project-title">Sites Syndicate</h3>
-                <p className="project-description">
+                <h3 className="project-title">Websites</h3>
+                <p className="project-description" style={{ color: '#666' }}>
                   Portfolio of my websites and web apps.
                 </p>
                 <div className="project-links" style={{ flex: '1' }}>
                   {/* Add site links here if needed */}
-                  <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
-                  <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
+                  <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" style={{ backgroundColor: '#000', color: '#6ea8fe' }} onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
+                  <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" style={{ backgroundColor: '#000', color: '#6ea8fe' }} onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
                 </div>
               </div>
             </div>
-            {/* Automation Nation */}
+            {/* Automation Nation
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+              <div className="project-card" onMouseEnter={onHover} style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
                 <i className="fas fa-robot project-icon"></i>
                 <h3 className="project-title">Automation Nation</h3>
-                <p className="project-description">
+                <p className="project-description" style={{ color: '#666' }}>
                   A collection of my hand-crafted automation workflows.
                 </p>
                 <div className="project-links" style={{ flex: '1' }}>
-                  {/* Add automation links here if needed */}
                 </div>
               </div>
             </div>
-            {/* Media Mayhem */}
+            */}
+            {/* Writings */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+              <div className="project-card" onMouseEnter={onHover} style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
+                <i className="fas fa-pen-nib project-icon"></i>
+                <h3 className="project-title">Writings</h3>
+                <p className="project-description" style={{ color: '#666' }}>
+                  Articles, essays, and notes about technology, creativity, and what I learn.
+                </p>
+                <div className="project-links" style={{ flex: '1' }}>
+                </div>
+              </div>
+            </div>
+            {/* Media */}
+            <div className="col-md-6 col-lg-4">
+              <div className="project-card" onMouseEnter={onHover} style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
                 <i className="fas fa-video project-icon"></i>
-                <h3 className="project-title">Media Mayhem</h3>
-                <p className="project-description">
+                <h3 className="project-title">Media</h3>
+                <p className="project-description" style={{ color: '#666' }}>
                   Checkout my YouTube channels, videos, and art.
                 </p>
                 <div className="project-links" style={{ flex: '1' }}>
@@ -443,16 +453,16 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            {/* Extension Empire */}
+            {/* Extensions */}
             <div className="col-md-6 col-lg-4">
-              <div className="project-card" onMouseEnter={onHover} style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
+              <div className="project-card" onMouseEnter={onHover} style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
                 <i className="fas fa-puzzle-piece project-icon"></i>
-                <h3 className="project-title">Extension Empire</h3>
-                <p className="project-description">
+                <h3 className="project-title">Extensions</h3>
+                <p className="project-description" style={{ color: '#666' }}>
                   Browser extensions and automation tools.
                 </p>
                 <div className="project-links" style={{ flex: '1' }}>
-                  <Link href="https://github.com/AirealAce/tab-master" className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>Tab Master</Link>
+                  <Link href="https://github.com/AirealAce/tab-master" className="btn btn-sm btn-outline-primary" style={{ backgroundColor: '#000', color: '#6ea8fe' }} onMouseEnter={onHover} onClick={onClick}>Tab Master</Link>
                 </div>
               </div>
             </div>
@@ -522,7 +532,7 @@ export default function Home() {
               <FontAwesomeIcon icon={faLinkedin} />
             </a>
           </div>
-          <p className="text-center mt-4">© 2024 Aaron Mills. All rights reserved.</p>
+          <p className="text-center mt-3">© 2024 Aaron Mills. All rights reserved.</p>
         </div>
       </footer>
     </>
