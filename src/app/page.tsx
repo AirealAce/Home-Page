@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTwitter, faGithub, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { VolumeSlider } from '../components/VolumeSlider';
-import { useState } from 'react';
+import { ProfileAnimationCanvas, type ProfileCanvasMode } from '@/components/ProfileAnimationCanvas';
+import { useEffect, useState } from 'react';
 
 // Paginated Project Card Component
 const PaginatedProjectCard = ({ 
@@ -130,9 +132,15 @@ const writingCards = [
 ];
 
 const writingsPerPage = 3;
+const profileAnimationOptions = ['meteors', 'lightning', 'blue-fire'] as const;
+type ProfileAnimation = typeof profileAnimationOptions[number];
 
 export default function Home() {
   const { onHover, onClick } = useSoundEffects();
+  const [isAlternateLayout, setIsAlternateLayout] = useState(false);
+  const [animationsEnabled, setAnimationsEnabled] = useState(true);
+  const [animationReady, setAnimationReady] = useState(false);
+  const [profileAnimation, setProfileAnimation] = useState<ProfileAnimation>('meteors');
   const [writingsPage, setWritingsPage] = useState(0);
   const writingsPageCount = Math.ceil(writingCards.length / writingsPerPage);
   const visibleWritingCards = writingCards.slice(
@@ -140,9 +148,21 @@ export default function Home() {
     (writingsPage + 1) * writingsPerPage
   );
   const hasWritingsCarousel = writingCards.length > writingsPerPage;
+  const activeProfileAnimation = animationReady && animationsEnabled ? profileAnimation : null;
+  const activeCanvasAnimation: ProfileCanvasMode = activeProfileAnimation === 'lightning' || activeProfileAnimation === 'blue-fire'
+    ? activeProfileAnimation
+    : null;
+
+  useEffect(() => {
+    const savedAnimationPreference = window.localStorage.getItem('profileAnimationsEnabled');
+    setAnimationsEnabled(savedAnimationPreference !== 'false');
+    const randomAnimationIndex = Math.floor(Math.random() * profileAnimationOptions.length);
+    setProfileAnimation(profileAnimationOptions[randomAnimationIndex]);
+    setAnimationReady(true);
+  }, []);
 
   return (
-    <>
+    <div className={`site-layout ${isAlternateLayout ? 'layout-one' : 'layout-two'}`}>
       {/* Navigation */}
       <nav className="navbar navbar-expand-lg navbar-light fixed-top">
         <div className="container">
@@ -159,6 +179,26 @@ export default function Home() {
           </button>
           <div className="collapse navbar-collapse" id="navbarResponsive">
             <ul className="navbar-nav ms-auto">
+              <li className="nav-item animation-nav-item">
+                <button
+                  type="button"
+                  className={`animation-toggle-button${animationsEnabled ? '' : ' is-off'}`}
+                  aria-label={animationsEnabled ? 'Turn animations off' : 'Turn animations on'}
+                  aria-pressed={animationsEnabled}
+                  title={animationsEnabled ? 'Turn animations off' : 'Turn animations on'}
+                  onMouseEnter={onHover}
+                  onClick={() => {
+                    onClick();
+                    setAnimationsEnabled(currentValue => {
+                      const nextValue = !currentValue;
+                      window.localStorage.setItem('profileAnimationsEnabled', String(nextValue));
+                      return nextValue;
+                    });
+                  }}
+                >
+                  <FontAwesomeIcon icon={faWandMagicSparkles} />
+                </button>
+              </li>
               <li className="nav-item volume-nav-item">
                 <VolumeSlider />
               </li>
@@ -167,13 +207,36 @@ export default function Home() {
               <li className="nav-item"><Link className="nav-link" href="#projects" onMouseEnter={onHover} onClick={onClick}>PROJECTS</Link></li>
               <li className="nav-item"><Link className="nav-link" href="#writings" onMouseEnter={onHover} onClick={onClick}>WRITINGS</Link></li>
               <li className="nav-item"><Link className="nav-link" href="#contact" onMouseEnter={onHover} onClick={onClick}>CONTACT</Link></li>
+              <li className="nav-item layout-toggle-nav-item">
+                <button
+                  type="button"
+                  className="nav-link layout-toggle-button"
+                  aria-pressed={isAlternateLayout}
+                  aria-label={`Switch to layout ${isAlternateLayout ? 'one' : 'two'}`}
+                  title={`Switch to layout ${isAlternateLayout ? 'one' : 'two'}`}
+                  onMouseEnter={onHover}
+                  onClick={() => {
+                    onClick();
+                    setIsAlternateLayout(currentLayout => !currentLayout);
+                  }}
+                >
+                  LAYOUT {isAlternateLayout ? '1' : '2'}
+                </button>
+              </li>
             </ul>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero-section">
+      <div className="profile-about-layout">
+        {/* Hero Section */}
+        <section className="hero-section">
+        <div className={`profile-animation-layer profile-meteor-shower${activeProfileAnimation === 'meteors' ? ' is-active' : ''}`} aria-hidden="true">
+          {Array.from({ length: 10 }, (_, index) => (
+            <span className="profile-meteor" key={index}></span>
+          ))}
+        </div>
+        <ProfileAnimationCanvas mode={activeCanvasAnimation} />
         <div className="container">
           <Image 
             className="profile-image" 
@@ -222,10 +285,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
 
-      {/* About Section */}
-      <section className="page-section" id="about" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
+        {/* About Section */}
+        <section className="page-section" id="about" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
         <div className="container">
           <h2 className="section-title" style={{ color: '#333' }}>ABOUT</h2>
           <div className="row justify-content-center">
@@ -244,7 +307,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      </div>
 
       {/* Services Section
       <section className="page-section" id="services" style={{ backgroundColor: '#000', color: '#fff' }}>
@@ -567,6 +631,6 @@ export default function Home() {
           <p className="text-center mt-3">© 2024 Aaron Mills. All rights reserved.</p>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
