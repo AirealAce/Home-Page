@@ -184,6 +184,25 @@ body {
   margin: 0 1rem;
 }
 
+.hero-social-icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hero-social-icon:hover,
+.hero-social-icon:focus-visible {
+  border-color: #3498db !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 14px rgba(52, 152, 219, 0.95) !important;
+}
+
 /* Page sections */
 .page-section {
   padding: 3.5rem 0;
@@ -219,12 +238,7 @@ body {
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   height: 100%;
-  transition: transform 0.3s ease;
   border: 2px solid var(--secondary-color);
-}
-
-.project-card:hover {
-  transform: translateY(-5px);
 }
 
 .project-icon {
@@ -257,6 +271,102 @@ body {
   height: auto;
   margin: 0.25rem;
   border: 1px solid var(--mint);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.project-links .btn:hover,
+.project-links .btn:focus-visible {
+  transform: scale(1.06) !important;
+  box-shadow: 0 0 12px rgba(52, 152, 219, 0.9) !important;
+}
+
+.project-carousel-button {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  flex: 0 0 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #8b0000;
+  border-radius: 50%;
+  background-color: #000;
+  color: #ff6b6b;
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.project-carousel-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.project-carousel-button:hover:not(:disabled),
+.project-carousel-button:focus-visible:not(:disabled) {
+  background-color: #8b0000;
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 14px rgba(255, 35, 35, 0.9);
+}
+
+/* Hide Project cards until their entries container has at least one link. */
+#projects .row > [class*="col-"]:not([data-keep-visible="true"]):has(.project-links:empty) {
+  display: none;
+}
+
+.writings-section-header {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.writings-section-header.without-controls {
+  grid-template-columns: 1fr;
+}
+
+.writings-section-header .section-title {
+  margin-bottom: 0;
+}
+
+.writings-carousel-button {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #8b0000;
+  border-radius: 50%;
+  background-color: #000;
+  color: #ff6b6b;
+  font-size: 1.5rem;
+  line-height: 1;
+  transform: translateY(-0.325rem);
+  transition: all 0.3s ease;
+}
+
+.writings-carousel-button:hover:not(:disabled),
+.writings-carousel-button:focus-visible:not(:disabled) {
+  background-color: #8b0000;
+  color: #fff;
+  transform: translateY(-0.325rem) scale(1.1);
+  box-shadow: 0 0 14px rgba(255, 35, 35, 0.9);
+}
+
+.writings-carousel-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+#writings .project-links .btn {
+  background-color: #d8d8d8;
+  color: #333;
 }
 
 /* Footer */
@@ -274,13 +384,35 @@ body {
 }
 
 .social-icon {
-  color: white;
-  font-size: 1.5rem;
-  transition: color 0.3s ease;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #3498db;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.social-icon:hover {
-  color: var(--mint);
+.social-icon-twitter {
+  color: #1da1f2;
+}
+
+.social-icon-github {
+  color: #fff;
+}
+
+.social-icon-linkedin {
+  color: #0077b5;
+}
+
+.social-icon:hover,
+.social-icon:focus-visible,
+.social-icon:active {
+  transform: scale(1.1);
+  box-shadow: 0 0 14px rgba(52, 152, 219, 0.95);
 }
 
 /* Responsive adjustments */
