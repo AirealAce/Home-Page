@@ -226,19 +226,27 @@ export function ProfileAnimationCanvas({ mode }: { mode: ProfileCanvasMode }) {
     let previousTime = performance.now();
     let width = 1;
     let height = 1;
+    let pixelRatio = 1;
     let visibleTop = 0;
     let fireSpawnRemainder = 0;
     let nextLightningStrike = previousTime + randomBetween(80, 360);
     let fireParticles: FireParticle[] = [];
     let lightningBolts: LightningBolt[] = [];
+    const getPixelRatio = () => Math.min(window.devicePixelRatio || 1, 2);
+    const clearCanvas = () => {
+      // Clear backing-store pixels, not scaled CSS coordinates. This also removes
+      // edge glow when zoom, resizing, or a context reset changes the drawing scale.
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.beginPath();
+    };
     const resizeCanvas = () => {
       const rectangle = canvas.getBoundingClientRect();
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      pixelRatio = getPixelRatio();
       width = Math.max(1, rectangle.width);
       height = Math.max(1, rectangle.height);
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
       const navigationBottom = document.querySelector('.navbar')?.getBoundingClientRect().bottom ?? 0;
       visibleTop = clamp(navigationBottom - rectangle.top, 0, height * 0.3);
@@ -413,7 +421,11 @@ export function ProfileAnimationCanvas({ mode }: { mode: ProfileCanvasMode }) {
     const drawFrame = (currentTime: number) => {
       const deltaTime = Math.min(0.05, Math.max(0, (currentTime - previousTime) / 1000));
       previousTime = currentTime;
-      context.clearRect(0, 0, width, height);
+      // A display/zoom change can alter pixel density without resizing the element.
+      if (getPixelRatio() !== pixelRatio) resizeCanvas();
+      clearCanvas();
+      // Reapply the exact scale each frame, including fractional-size rounding.
+      context.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0);
 
       if (mode === 'blue-fire') {
         drawFire(deltaTime, currentTime);
@@ -429,7 +441,7 @@ export function ProfileAnimationCanvas({ mode }: { mode: ProfileCanvasMode }) {
     return () => {
       window.cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
-      context.clearRect(0, 0, width, height);
+      clearCanvas();
     };
   }, [mode]);
 

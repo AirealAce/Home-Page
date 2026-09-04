@@ -8,136 +8,75 @@ import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { VolumeSlider } from '../components/VolumeSlider';
 import { ProfileAnimationCanvas, type ProfileCanvasMode } from '@/components/ProfileAnimationCanvas';
-import { useEffect, useState } from 'react';
+import { SiteSearch } from '@/components/SiteSearch';
+import { entryId, projectCards, writingCards, writingsPerPage, type ContentCard, type SiteSection } from '@/data/siteContent';
+import { createSearchEntries, type SearchEntry } from '@/utils/siteSearch';
+import { useEffect, useRef, useState } from 'react';
 
-// Paginated Project Card Component
-const PaginatedProjectCard = ({ 
-  icon, 
-  title, 
-  description, 
-  links, 
-  onHover, 
-  onClick 
-}: {
-  icon: string;
-  title: string;
-  description: string;
-  links: { href: string; text: string }[];
+// A single content list supplies both the cards and the header search.
+const ProjectCard = ({ card, currentPage, onPageChange, onHover, onClick }: {
+  card: ContentCard;
+  currentPage: number;
+  onPageChange: (page: number) => void;
   onHover: () => void;
   onClick: () => void;
 }) => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const linksPerPage = 6;
-  const totalPages = Math.ceil(links.length / linksPerPage);
-  
-  const startIndex = currentPage * linksPerPage;
-  const endIndex = startIndex + linksPerPage;
-  const currentLinks = links.slice(startIndex, endIndex);
-
-  const nextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  const linksPerPage = card.linksPerPage ?? Math.max(card.links.length, 1);
+  const totalPages = Math.max(1, Math.ceil(card.links.length / linksPerPage));
+  const page = Math.min(currentPage, totalPages - 1);
+  const currentLinks = card.links.slice(page * linksPerPage, (page + 1) * linksPerPage);
 
   return (
     <div className="project-card" style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
-      <i className={`${icon} project-icon`}></i>
-      <h3 className="project-title">{title}</h3>
-      <p className="project-description" style={{ color: '#666' }}>{description}</p>
-      <div className="project-links" style={{ minHeight: '100px', flex: '1' }}>
-        {currentLinks.map((link, index) => (
-          <Link 
-            key={index}
-            href={link.href} 
-            className="btn btn-sm btn-outline-primary" 
+      <i className={`${card.icon} project-icon`}></i>
+      <h3 className="project-title">{card.title}</h3>
+      <p className="project-description" style={{ color: '#666' }}>{card.description}</p>
+      <div className="project-links" style={{ flex: '1', ...(card.linksPerPage ? { minHeight: '100px' } : {}) }}>
+        {currentLinks.map(link => (
+          <Link
+            key={link.id}
+            id={entryId('projects', card.id, link.id)}
+            href={link.href}
+            className="btn btn-sm btn-outline-primary"
             style={{
-              minWidth: '80px',
-              height: '32px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.875rem',
-              padding: '0.25rem 0.5rem',
-              backgroundColor: '#000',
-              color: '#6ea8fe'
+              backgroundColor: '#000', color: '#6ea8fe',
+              ...(card.linksPerPage ? {
+                minWidth: '80px', height: '32px', display: 'inline-flex',
+                alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.875rem', padding: '0.25rem 0.5rem'
+              } : {})
             }}
-            onMouseEnter={onHover} 
+            onMouseEnter={onHover}
             onClick={onClick}
-          >
-            {link.text}
-          </Link>
+          >{link.text}</Link>
         ))}
       </div>
       {totalPages > 1 && (
-        <div className="pagination-controls" style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          gap: '0.75rem',
-          marginTop: '0.5rem'
-        }}>
-          <button 
-            onClick={prevPage} 
-            disabled={currentPage === 0}
-            className="project-carousel-button"
-            onMouseEnter={onHover}
-          >
-            ←
-          </button>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-            {currentPage + 1} / {totalPages}
-          </span>
-          <button 
-            onClick={nextPage} 
-            disabled={currentPage === totalPages - 1}
-            className="project-carousel-button"
-            onMouseEnter={onHover}
-          >
-            →
-          </button>
+        <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
+          <button type="button" className="project-carousel-button" aria-label={`Previous ${card.title} buttons`}
+            disabled={page === 0} onMouseEnter={onHover}
+            onClick={() => { onClick(); onPageChange(page - 1); }}>←</button>
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{page + 1} / {totalPages}</span>
+          <button type="button" className="project-carousel-button" aria-label={`Next ${card.title} buttons`}
+            disabled={page === totalPages - 1} onMouseEnter={onHover}
+            onClick={() => { onClick(); onPageChange(page + 1); }}>→</button>
         </div>
       )}
     </div>
   );
 };
 
-const writingCards = [
-  {
-    icon: 'fas fa-book',
-    title: 'Book Notes',
-    description: 'Notes and takeaways from books I have read.'
-  },
-  {
-    icon: 'fas fa-user-pen',
-    title: 'Biography Notes',
-    description: 'Notes about remarkable people and their lives.'
-  },
-  {
-    icon: 'fas fa-pen-nib',
-    title: 'Other Pieces',
-    description: 'Essays, observations, reflections, channelings, scripts, and other written pieces.'
-  },
-  {
-    icon: 'fas fa-language',
-    title: '日本語',
-    description: 'Japanese-language notes and written pieces.'
-  }
-];
-
-const writingsPerPage = 3;
+const searchEntries = createSearchEntries(projectCards, writingCards);
 const profileAnimationOptions = ['meteors', 'lightning', 'blue-fire'] as const;
 type ProfileAnimation = typeof profileAnimationOptions[number];
 
 export default function Home() {
   const { onHover, onClick } = useSoundEffects();
   const [isAlternateLayout, setIsAlternateLayout] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [projectPages, setProjectPages] = useState<Record<string, number>>({});
+  const [pendingTarget, setPendingTarget] = useState<string | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [animationReady, setAnimationReady] = useState(false);
   const [profileAnimation, setProfileAnimation] = useState<ProfileAnimation>('meteors');
@@ -153,6 +92,45 @@ export default function Home() {
     ? activeProfileAnimation
     : null;
 
+  const locateEntry = (entry: SearchEntry) => {
+    if (entry.sectionId === 'writings') setWritingsPage(entry.cardPage);
+    else setProjectPages(pages => ({ ...pages, [entry.cardId]: entry.linkPage }));
+    setIsMenuOpen(false);
+    setPendingTarget(entry.id);
+  };
+
+  const locateSection = (section: SiteSection) => {
+    setIsMenuOpen(false);
+    setPendingTarget(section.id);
+  };
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const updateHeaderHeight = () => document.documentElement.style.setProperty('--site-header-height', `${header.offsetHeight}px`);
+    updateHeaderHeight();
+    const observer = new ResizeObserver(updateHeaderHeight);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
+  // Pagination has committed before focus moves, so off-page buttons are real targets.
+  useEffect(() => {
+    if (!pendingTarget) return;
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(pendingTarget);
+      if (target) {
+        target.focus({ preventScroll: true });
+        target.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: pendingTarget.startsWith('entry-') ? 'center' : 'start'
+        });
+      }
+      setPendingTarget(null);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pendingTarget]);
+
   useEffect(() => {
     const savedAnimationPreference = window.localStorage.getItem('profileAnimationsEnabled');
     setAnimationsEnabled(savedAnimationPreference !== 'false');
@@ -162,22 +140,24 @@ export default function Home() {
   }, []);
 
   return (
-    <div className={`site-layout ${isAlternateLayout ? 'layout-one' : 'layout-two'}`}>
+    <div id="page-top" className={`site-layout ${isAlternateLayout ? 'layout-one' : 'layout-two'}`}>
       {/* Navigation */}
-      <nav className="navbar navbar-expand-lg navbar-light fixed-top">
+      <nav ref={headerRef} className="navbar navbar-expand-xl navbar-light fixed-top">
         <div className="container">
           <Link href="#page-top" className="navbar-brand" onMouseEnter={onHover} onClick={onClick}>AARON | MILLS</Link>
+          <SiteSearch entries={searchEntries} onLocateEntry={locateEntry} onLocateSection={locateSection} />
           <button 
             className="navbar-toggler" 
             type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#navbarResponsive" 
+            aria-label="Toggle navigation"
+            aria-controls="navbarResponsive"
+            aria-expanded={isMenuOpen}
             onMouseEnter={onHover} 
-            onClick={onClick}
+            onClick={() => { onClick(); setIsMenuOpen(open => !open); }}
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse" id="navbarResponsive">
+          <div className={`collapse navbar-collapse${isMenuOpen ? ' show' : ''}`} id="navbarResponsive">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item animation-nav-item">
                 <button
@@ -230,7 +210,7 @@ export default function Home() {
 
       <div className="profile-about-layout">
         {/* Hero Section */}
-        <section className="hero-section">
+        <section className="hero-section" id="profile" tabIndex={-1} aria-label="Profile">
         <div className={`profile-animation-layer profile-meteor-shower${activeProfileAnimation === 'meteors' ? ' is-active' : ''}`} aria-hidden="true">
           {Array.from({ length: 10 }, (_, index) => (
             <span className="profile-meteor" key={index}></span>
@@ -288,7 +268,7 @@ export default function Home() {
         </section>
 
         {/* About Section */}
-        <section className="page-section" id="about" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
+        <section className="page-section" id="about" tabIndex={-1} aria-label="About" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
         <div className="container">
           <h2 className="section-title" style={{ color: '#333' }}>ABOUT</h2>
           <div className="row justify-content-center">
@@ -451,117 +431,27 @@ export default function Home() {
       */}
 
       {/* Projects Section */}
-      <section className="page-section" id="projects" style={{ backgroundColor: '#000', color: '#fff' }}>
+      <section className="page-section" id="projects" tabIndex={-1} aria-label="Projects" style={{ backgroundColor: '#000', color: '#fff' }}>
         <div className="container">
           <h2 className="section-title text-center" style={{ color: '#fff' }}>PROJECTS</h2>
           <div className="row g-3 justify-content-center">
-            {/* Resources */}
-            <div className="col-md-6 col-lg-4" data-keep-visible="true">
-              <div className="project-card" style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
-                <i className="fas fa-folder-open project-icon"></i>
-                <h3 className="project-title">Resources</h3>
-                <p className="project-description" style={{ color: '#666' }}>
-                  A collection of useful tools, references, and learning materials.
-                </p>
-                <div className="project-links" style={{ flex: '1' }}>
-                </div>
+            {projectCards.filter(card => card.keepVisible || card.links.length > 0).map(card => (
+              <div className="col-md-6 col-lg-4" key={card.id} data-keep-visible={card.keepVisible || undefined}>
+                <ProjectCard
+                  card={card}
+                  currentPage={projectPages[card.id] ?? 0}
+                  onPageChange={page => setProjectPages(pages => ({ ...pages, [card.id]: page }))}
+                  onHover={onHover}
+                  onClick={onClick}
+                />
               </div>
-            </div>
-            {/* Websites */}
-            <div className="col-md-6 col-lg-4">
-              <div className="project-card" style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
-                <i className="fas fa-globe project-icon"></i>
-                <h3 className="project-title">Websites</h3>
-                <p className="project-description" style={{ color: '#666' }}>
-                  Portfolio of my websites and web apps.
-                </p>
-                <div className="project-links" style={{ flex: '1' }}>
-                  {/* Add site links here if needed */}
-                  <Link href="https://habithall.com" className="btn btn-sm btn-outline-primary" style={{ backgroundColor: '#000', color: '#6ea8fe' }} onMouseEnter={onHover} onClick={onClick}>Habit Hall</Link>
-                  <Link href="https://insertsight.com" className="btn btn-sm btn-outline-primary" style={{ backgroundColor: '#000', color: '#6ea8fe' }} onMouseEnter={onHover} onClick={onClick}>Insert Sight</Link>
-                </div>
-              </div>
-            </div>
-            {/* Media */}
-            <div className="col-md-6 col-lg-4">
-              <div className="project-card" style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
-                <i className="fas fa-video project-icon"></i>
-                <h3 className="project-title">Media</h3>
-                <p className="project-description" style={{ color: '#666' }}>
-                  Checkout my YouTube channels, videos, and art.
-                </p>
-                <div className="project-links" style={{ flex: '1' }}>
-                  {/* Add media links here if needed */}
-                </div>
-              </div>
-            </div>
-            {/* Extensions */}
-            <div className="col-md-6 col-lg-4">
-              <div className="project-card" style={{ backgroundColor: '#d8d8d8', color: '#333', height: '340px', display: 'flex', flexDirection: 'column' }}>
-                <i className="fas fa-puzzle-piece project-icon"></i>
-                <h3 className="project-title">Extensions</h3>
-                <p className="project-description" style={{ color: '#666' }}>
-                  Browser extensions and automation tools.
-                </p>
-                <div className="project-links" style={{ flex: '1' }}>
-                  <Link href="https://github.com/AirealAce/tab-master" className="btn btn-sm btn-outline-primary" style={{ backgroundColor: '#000', color: '#6ea8fe' }} onMouseEnter={onHover} onClick={onClick}>Tab Master</Link>
-                </div>
-              </div>
-            </div>
-            {/* Sample Projects */}
-            <div className="col-md-6 col-lg-4">
-              <PaginatedProjectCard
-                icon="fas fa-music"
-                title="Sample Projects"
-                description="Mock up, sample projects, and scrapped ideas."
-                links={[
-                  { href: "https://japan-themed-site.pages.dev", text: "Japan Prefecture Atlas" },
-                  { href: "https://smash-spirit-clash.pages.dev", text: "Smash Spirit Clash" },
-                  { href: "https://royalchat.aaronmills.co", text: "Royal Chat" },
-                  { href: "https://voicenoter.aaronmills.co", text: "Voice Noter" },
-                  { href: "https://createinc.aaronmills.co", text: "Create.Inc" },
-                  { href: "https://mock.hobedesignhouse.aaronmills.co", text: "Hobe Design House" },
-                  { href: "https://demo-jump-game.aaronmills.co", text: "Demo Game" },
-                  { href: "https://kawaiistudio.aaronmills.co", text: "KawaiiStudio" },
-                  { href: "https://sonicmon.aaronmills.co", text: "Sonimon" },
-                  { href: "https://translator.aaronmills.co", text: "Translator" },
-                  { href: "https://spritesaga.aaronmills.co", text: "Sprite Saga" }
-                ]}
-                onHover={onHover}
-                onClick={onClick}
-              />
-            </div>
-            {/* Academic Projects */}
-            <div className="col-md-6 col-lg-4">
-              <PaginatedProjectCard
-                icon="fas fa-laptop-code"
-                title="Academic Projects"
-                description="Collection of web development and full-stack apps completed at Florida Atlantic University."
-                links={[
-                  { href: "https://internetcomputing.aaronmills.co", text: "Project 0" },
-                  { href: "https://internetcomputing.aaronmills.co/p1", text: "Project 1" },
-                  { href: "https://internetcomputing.aaronmills.co/p2", text: "Project 2" },
-                  { href: "https://internetcomputing.aaronmills.co/p3", text: "Project 3" },
-                  { href: "https://internetcomputing.aaronmills.co/p4", text: "Project 4" },
-                  { href: "https://jpstudy.aaronmills.co", text: "JP Study" },
-                  { href: "https://flashcards.aaronmills.co", text: "Flashcards" },
-                  { href: "https://flashcards2.aaronmills.co", text: "Flashcards 2" },
-                  { href: "https://catmaker.aaronmills.co", text: "Cat Maker" },
-                  { href: "https://recipes.aaronmills.co", text: "Recipes" },
-                  { href: "https://recipestatistics.aaronmills.co", text: "Recipe Stats" },
-                  { href: "https://characterparty.aaronmills.co", text: "Character Party" },
-                  { href: "https://preneurmanure.aaronmills.co", text: "Preneur Manure" }
-                ]}
-                onHover={onHover}
-                onClick={onClick}
-              />
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Writings Section */}
-      <section className="page-section" id="writings" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
+      <section className="page-section" id="writings" tabIndex={-1} aria-label="Writings" style={{ backgroundColor: '#d8d8d8', color: '#333' }}>
         <div className="container">
           <div className={`writings-section-header${hasWritingsCarousel ? '' : ' without-controls'}`}>
             {hasWritingsCarousel && (
@@ -598,7 +488,7 @@ export default function Home() {
           </div>
           <div className="row g-3 justify-content-center">
             {visibleWritingCards.map(card => (
-              <div className="col-md-6 col-lg-4" key={card.title}>
+              <div className="col-md-6 col-lg-4" key={card.id}>
                 <div className="project-card writing-card" style={{ backgroundColor: '#000', color: '#fff', height: 'auto', minHeight: '340px', maxHeight: '680px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
                   <i className={`${card.icon} project-icon`}></i>
                   <h3 className="project-title" style={{ color: '#fff' }}>{card.title}</h3>
@@ -606,6 +496,12 @@ export default function Home() {
                     {card.description}
                   </p>
                   <div className="project-links" style={{ flex: '1' }}>
+                    {card.links.map(link => (
+                      <Link key={link.id} id={entryId('writings', card.id, link.id)} href={link.href}
+                        className="btn btn-sm btn-outline-primary" onMouseEnter={onHover} onClick={onClick}>
+                        {link.text}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -615,7 +511,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
+      <footer className="footer" id="contact" tabIndex={-1} aria-label="Contact">
         <div className="container">
           <div className="social-links">
             <a href="https://x.com/aaronmiruzu" className="social-icon social-icon-twitter" aria-label="Twitter" target="_blank" rel="noopener noreferrer" onMouseEnter={onHover} onClick={onClick}>
