@@ -8,6 +8,25 @@ it("preserves question text and image descriptions in result rows", () => {
     ),
   ).toBe("First line Second line [Image: A diagram]");
 });
+it("preserves paragraphs, list items, table rows, and alternatives for line-by-line reading", () => {
+  expect(
+    questionText(
+      '<p>One<br>Two</p><ul><li>Alpha</li><li>Beta</li></ul><img alt="Diagram" src="x">',
+      { preserveLines: true },
+    ),
+  ).toBe("One\nTwo\n\n• Alpha\n\n• Beta\n[Image: Diagram]");
+  expect(
+    questionText(
+      "<table><tr><th>Model</th><th>Example</th></tr><tr><td>Social</td><td>Barriers</td></tr></table>",
+      { preserveLines: true },
+    ),
+  ).toBe("Model Example\n\nSocial Barriers");
+  expect(
+    questionText("<ol><li>First</li><li>Second</li></ol>", {
+      preserveLines: true,
+    }),
+  ).toBe("1. First\n\n2. Second");
+});
 it("removes active markup, remote media, colors and event handlers", () => {
   const c = cardContent(
     '<script>alert(1)</script><img src="https://tracker.test/a" onerror="evil()"><span style="color:black" id="main">Readable</span><a href="javascript:evil()">Bad</a>',

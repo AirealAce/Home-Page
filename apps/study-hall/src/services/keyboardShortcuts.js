@@ -1,7 +1,15 @@
 import { RATINGS } from "./studyEngine";
 export function studyShortcut(
   event,
-  { settings, dialogOpen, canUndo, studying = true, revealed, hasAudio },
+  {
+    settings,
+    dialogOpen,
+    canUndo,
+    studying = true,
+    revealed,
+    hasAudio,
+    studyTextControl,
+  },
 ) {
   if (
     !settings.shortcuts ||
@@ -12,11 +20,18 @@ export function studyShortcut(
   )
     return null;
   const target = event.target;
+  // Only the explicitly supplied, read-only card reader permits study keys.
+  // Other inputs (including unrelated read-only fields) keep native behavior.
+  const isStudyReader =
+    target === studyTextControl &&
+    target?.tagName === "TEXTAREA" &&
+    target.getAttribute("aria-readonly") === "true";
   if (
-    target?.isContentEditable ||
-    target?.closest?.(
-      'input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],dialog',
-    )
+    !isStudyReader &&
+    (target?.isContentEditable ||
+      target?.closest?.(
+        'input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],dialog',
+      ))
   )
     return null;
   const key = event.key.toLowerCase();

@@ -1,5 +1,5 @@
 import DOMPurify from "dompurify";
-export function questionText(raw) {
+export function questionText(raw, { preserveLines = false } = {}) {
   const clean = DOMPurify.sanitize(
     raw.replace(/\[sound:[^\]]+\]/g, " [Audio] "),
     {
@@ -15,6 +15,19 @@ export function questionText(raw) {
         "strong",
         "i",
         "em",
+        "ul",
+        "ol",
+        "table",
+        "caption",
+        "thead",
+        "tbody",
+        "tr",
+        "th",
+        "td",
+        "blockquote",
+        "pre",
+        "code",
+        "hr",
       ],
       ALLOWED_ATTR: ["alt"],
     },
@@ -33,11 +46,37 @@ export function questionText(raw) {
     .querySelectorAll("audio")
     .forEach((el) => el.replaceWith(doc.createTextNode(" [Audio] ")));
   doc
-    .querySelectorAll("br")
-    .forEach((el) => el.replaceWith(doc.createTextNode(" ")));
+    .querySelectorAll("br,hr")
+    .forEach((el) =>
+      el.replaceWith(doc.createTextNode(preserveLines ? "\n" : " ")),
+    );
   doc
-    .querySelectorAll("p,div,li")
-    .forEach((el) => el.append(doc.createTextNode(" ")));
+    .querySelectorAll("th,td")
+    .forEach((el) => el.append(doc.createTextNode("\t")));
+  if (preserveLines) {
+    doc.querySelectorAll("li").forEach((el) => {
+      const siblings = [...el.parentElement.children].filter(
+        (item) => item.tagName === "LI",
+      );
+      el.prepend(
+        doc.createTextNode(
+          el.parentElement.tagName === "OL"
+            ? `${siblings.indexOf(el) + 1}. `
+            : "• ",
+        ),
+      );
+    });
+  }
+  doc.querySelectorAll("p,div,li,blockquote,pre,caption,tr").forEach((el) => {
+    if (preserveLines) el.prepend(doc.createTextNode("\n"));
+    el.append(doc.createTextNode(preserveLines ? "\n" : " "));
+  });
+  if (preserveLines)
+    return doc.body.textContent
+      .replace(/[^\S\n]+/g, " ")
+      .replace(/ *\n */g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
   return doc.body.textContent.replace(/\s+/g, " ").trim();
 }
 export function cardContent(raw, mediaUrls = {}) {

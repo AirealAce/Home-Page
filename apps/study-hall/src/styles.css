@@ -53,6 +53,7 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
+textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid #fff;
   outline-offset: 5px;
@@ -575,6 +576,26 @@ input::file-selector-button {
 }
 .keyboard-study .button-row {
   margin: 0;
+}
+.reader-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.study-reader {
+  display: block;
+  width: 100%;
+  min-height: 10rem;
+  margin-bottom: 20px;
+  padding: 16px;
+  font: inherit;
+  line-height: 1.7;
+  color: var(--paper);
+  background: #141414;
+  border: 1px solid #77776f;
+  border-radius: 8px;
+  resize: vertical;
+  overscroll-behavior: contain;
 }
 .text-button {
   padding: 6px 0;

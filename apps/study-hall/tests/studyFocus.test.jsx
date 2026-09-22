@@ -34,7 +34,6 @@ function Harness({ settings = DEFAULT_SETTINGS }) {
   );
 }
 let host, root;
-const flushSpeech = () => act(() => vi.advanceTimersByTime(150));
 const press = (key, extra = {}) =>
   act(() =>
     document.activeElement.dispatchEvent(
@@ -61,7 +60,6 @@ beforeEach(() => {
       static revokeObjectURL = vi.fn();
     },
   );
-  vi.useFakeTimers();
   host = document.createElement("div");
   document.body.append(host);
   root = createRoot(host);
@@ -69,36 +67,46 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   host.remove();
-  vi.useRealTimers();
   vi.unstubAllGlobals();
   delete globalThis.IS_REACT_ACT_ENVIRONMENT;
 });
 describe("continuous keyboard study", () => {
-  it("keeps the same focus across reveal, Good, Again, and repeated undo", () => {
+  it("keeps one text control focused and selects each question or answer across ratings and undo", () => {
     act(() => root.render(<Harness />));
-    const keyboard = host.querySelector('[role="application"]');
-    const speech = host.querySelector('[role="status"]');
+    const keyboard = host.querySelector("#study-reader");
     const focusChanges = [];
     host.addEventListener("focusin", (e) => focusChanges.push(e.target));
     expect(document.activeElement).toBe(keyboard);
-    flushSpeech();
-    expect(speech.textContent).toBe("Card 1 of 2. Question. First question");
+    expect(keyboard.getAttribute("aria-readonly")).toBe("true");
+    expect(keyboard.value).toBe("First question");
+    expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([
+      0,
+      keyboard.value.length,
+    ]);
     for (const [key, extra, message] of [
-      [" ", {}, "Card 1 of 2. Answer. First answer"],
-      [" ", {}, "Card 2 of 2. Question. Second question"],
-      [" ", {}, "Card 2 of 2. Answer. Second answer"],
-      ["1", {}, "Card 2 of 2. Question. Second question"],
-      ["z", { ctrlKey: true }, "Card 2 of 2. Answer. Second answer"],
-      ["z", { ctrlKey: true }, "Card 1 of 2. Answer. First answer"],
+      [" ", {}, "First answer"],
+      [" ", {}, "Second question"],
+      [" ", {}, "Second answer"],
+      ["1", {}, "Second question"],
+      ["z", { ctrlKey: true }, "Second answer"],
+      ["z", { ctrlKey: true }, "First answer"],
     ]) {
       press(key, extra);
-      flushSpeech();
       expect(document.activeElement).toBe(keyboard);
-      expect(host.querySelector('[role="status"]')).toBe(speech);
-      expect(speech.textContent).toBe(message);
+      expect(host.querySelector("#study-reader")).toBe(keyboard);
+      expect(keyboard.value).toBe(message);
+      expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([
+        0,
+        message.length,
+      ]);
     }
     expect(focusChanges).toEqual([]);
-    expect(keyboard.contains(host.querySelector(".study-card"))).toBe(false);
+    expect(
+      host
+        .querySelector('[role="application"]')
+        .contains(host.querySelector(".study-card")),
+    ).toBe(false);
+    expect(host.querySelector("[aria-live]")).toBeNull();
   });
   it("offers a reading escape that pauses shortcuts and an explicit return", () => {
     act(() => root.render(<Harness />));
@@ -106,34 +114,47 @@ describe("continuous keyboard study", () => {
     expect(document.activeElement).toBe(host.querySelector(".card-side"));
     press(" ");
     expect(host.querySelector(".answer-side")).toBeNull();
-    flushSpeech();
-    expect(host.querySelector('[role="status"]').textContent).toBe("");
     click("Resume keyboard study");
-    expect(document.activeElement).toBe(
-      host.querySelector('[role="application"]'),
-    );
+    expect(document.activeElement).toBe(host.querySelector("#study-reader"));
     press(" ");
     expect(host.querySelector(".answer-side")).not.toBeNull();
     click("Read card");
-    expect(document.activeElement).toBe(host.querySelector(".card-side"));
+    expect(document.activeElement).toBe(host.querySelector(".answer-side"));
     click("Repeat current question or answer");
-    flushSpeech();
-    expect(host.querySelector('[role="status"]').textContent).toBe(
-      "Card 1 of 2. Answer. First answer",
-    );
+    const reader = host.querySelector("#study-reader");
+    expect(document.activeElement).toBe(reader);
+    expect(reader.value).toBe("First answer");
+    expect([reader.selectionStart, reader.selectionEnd]).toEqual([
+      0,
+      reader.value.length,
+    ]);
   });
-  it("does not trap Tab or Shift+Tab", () => {
+  it("leaves arrows, Home/End, selection, copy, and Tab to the native text control", () => {
     act(() => root.render(<Harness />));
-    for (const shiftKey of [false, true]) {
+    for (const [key, modifiers] of [
+      ["Tab", {}],
+      ["Tab", { shiftKey: true }],
+      ["ArrowUp", {}],
+      ["ArrowDown", {}],
+      ["ArrowLeft", {}],
+      ["ArrowRight", {}],
+      ["ArrowDown", { shiftKey: true }],
+      ["ArrowRight", { ctrlKey: true }],
+      ["Home", {}],
+      ["End", { ctrlKey: true }],
+      ["a", { ctrlKey: true }],
+      ["c", { ctrlKey: true }],
+    ]) {
       const event = new KeyboardEvent("keydown", {
-        key: "Tab",
-        shiftKey,
+        key,
+        ...modifiers,
         bubbles: true,
         cancelable: true,
       });
       act(() => document.activeElement.dispatchEvent(event));
       expect(event.defaultPrevented).toBe(false);
     }
+    expect(host.querySelector("#study-reader").value).toBe("First question");
   });
   it("keeps ordinary button and focus behavior when shortcuts are disabled", () => {
     act(() =>
@@ -145,7 +166,41 @@ describe("continuous keyboard study", () => {
     expect(document.activeElement).toBe(host.querySelector(".card-side"));
     click("Show Answer");
     expect(document.activeElement).toBe(host.querySelector(".answer-side"));
-    flushSpeech();
-    expect(host.querySelector('[role="status"]').textContent).toBe("");
+    expect(host.querySelector("#study-reader")).toBeNull();
+  });
+  it("blocks typing, paste, cut, and drop without changing the card text", () => {
+    act(() => root.render(<Harness />));
+    const reader = host.querySelector("#study-reader");
+    for (const type of [
+      "insertText",
+      "insertFromPaste",
+      "deleteContentBackward",
+      "historyUndo",
+    ]) {
+      const event = new InputEvent("beforeinput", {
+        inputType: type,
+        data: "changed",
+        bubbles: true,
+        cancelable: true,
+      });
+      act(() => reader.dispatchEvent(event));
+      expect(event.defaultPrevented).toBe(true);
+    }
+    for (const type of ["paste", "cut", "drop"]) {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      act(() => reader.dispatchEvent(event));
+      expect(event.defaultPrevented).toBe(true);
+    }
+    expect(reader.value).toBe("First question");
+    // Simulate a noncancelable platform/IME input that bypasses beforeinput.
+    const nativeSetValue = Object.getOwnPropertyDescriptor(
+      HTMLTextAreaElement.prototype,
+      "value",
+    ).set;
+    act(() => {
+      nativeSetValue.call(reader, "Unexpected edit");
+      reader.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(reader.value).toBe("First question");
   });
 });

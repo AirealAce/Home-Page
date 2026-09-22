@@ -3,7 +3,10 @@ import { studyShortcut } from "../services/keyboardShortcuts";
 export function useStudyShortcuts(options) {
   useEffect(() => {
     const keydown = (event) => {
-      const action = studyShortcut(event, options);
+      const action = studyShortcut(event, {
+        ...options,
+        studyTextControl: options.studyTextRef?.current,
+      });
       if (!action) return;
       event.preventDefault();
       if (action === "reveal") options.onReveal();

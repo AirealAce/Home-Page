@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cardContent, questionText } from "../services/cardContent";
 import { RATINGS, summarize } from "../services/studyEngine";
 import { replayAudio, stopAudio } from "../services/audioService";
@@ -17,9 +17,7 @@ export default function StudySession({
     answer = useRef(null),
     keyboard = useRef(null),
     [audioError, setAudioError] = useState(""),
-    [keyboardActive, setKeyboardActive] = useState(true),
-    [announcement, setAnnouncement] = useState(""),
-    [repeat, setRepeat] = useState(0);
+    [keyboardActive, setKeyboardActive] = useState(true);
   const media = useMemo(
     () =>
       Object.fromEntries(
@@ -45,41 +43,57 @@ export default function StudySession({
     : front.audio;
   const summary = summarize(session),
     number = deck.cards.indexOf(card) + 1;
-  const spokenCard = `Card ${number} of ${summary.total}. ${session.revealed ? "Answer" : "Question"}. ${questionText(session.revealed ? back.html : front.html) || "Audio card. Use Replay Audio to listen."}`;
-  useEffect(() => {
-    // Keep one DOM focus target throughout the keyboard study loop. Moving
-    // between static question/answer groups makes JAWS leave Forms Mode.
+  const readingText = useMemo(
+    () =>
+      questionText(session.revealed ? back.html : front.html, {
+        preserveLines: true,
+      }) ||
+      (audio.length
+        ? "Audio card. Use Replay Audio to listen."
+        : "No text on this side of the card."),
+    [front, back, session.revealed, audio.length],
+  );
+  function selectCurrentText() {
+    const reader = keyboard.current;
+    if (!reader) return;
+    if (document.activeElement !== reader) reader.focus();
+    reader.setSelectionRange(0, reader.value.length, "backward");
+    reader.scrollTop = 0;
+  }
+  useLayoutEffect(() => {
+    // Keep the same native text control focused. Its selection/caret is
+    // exposed to screen readers, and arrow keys retain native text navigation.
     if (settings.shortcuts) {
       setKeyboardActive(true);
-      if (document.activeElement !== keyboard.current)
-        keyboard.current?.focus();
+      selectCurrentText();
     } else (session.revealed ? answer : question).current?.focus();
     setAudioError("");
-  }, [session.id, session.revision, session.revealed, settings.shortcuts]);
-  useEffect(() => {
-    setAnnouncement("");
-    if (!settings.shortcuts || !keyboardActive || dialogOpen) return;
-    // Populate an already-mounted live region, including when consecutive
-    // cards have identical text or the user requests the same card again.
-    const timer = setTimeout(() => setAnnouncement(spokenCard), 120);
-    return () => clearTimeout(timer);
   }, [
-    spokenCard,
+    session.id,
     session.revision,
-    repeat,
+    session.revealed,
     settings.shortcuts,
-    keyboardActive,
-    dialogOpen,
+    readingText,
   ]);
   function readCard() {
     setKeyboardActive(false);
-    question.current?.focus();
+    (session.revealed ? answer : question).current?.focus();
   }
   function resumeKeyboard() {
     setKeyboardActive(true);
-    keyboard.current?.focus();
-    setRepeat((value) => value + 1);
+    keyboard.current?.setSelectionRange(0, 0);
+    selectCurrentText();
   }
+  useEffect(() => {
+    const reader = keyboard.current;
+    if (!reader) return;
+    // Chromium's native readonly textarea scrolls instead of moving its
+    // caret. Keep native text navigation, expose aria-readonly, and cancel
+    // every edit through beforeinput; onChange also guards noncancelable edits.
+    const preventEdit = (event) => event.preventDefault();
+    reader.addEventListener("beforeinput", preventEdit);
+    return () => reader.removeEventListener("beforeinput", preventEdit);
+  }, [settings.shortcuts]);
   useEffect(() => {
     stopAudio();
     if (settings.autoplay)
@@ -89,6 +103,7 @@ export default function StudySession({
   const canUndo = !!session.undoStack?.length;
   useStudyShortcuts({
     settings: { ...settings, shortcuts: settings.shortcuts && keyboardActive },
+    studyTextRef: keyboard,
     dialogOpen,
     canUndo,
     revealed: session.revealed,
@@ -132,15 +147,6 @@ export default function StudySession({
           className="keyboard-study"
           role="application"
           aria-label="Keyboard study"
-          aria-describedby="keyboard-study-help"
-          tabIndex={0}
-          ref={keyboard}
-          onFocus={(event) => {
-            if (event.target === event.currentTarget) {
-              setKeyboardActive(true);
-              setRepeat((value) => value + 1);
-            }
-          }}
           onKeyDown={(event) => {
             if (
               event.key === "Escape" &&
@@ -155,9 +161,32 @@ export default function StudySession({
         >
           <p id="keyboard-study-help" className="small">
             Space shows the answer, then rates Good. Use 1–4 to rate and Ctrl+Z
-            to undo. Card changes are announced here. Escape pauses shortcuts so
-            you can read the card. Tab moves to the buttons.
+            to undo. New card text is selected below. Arrow keys move through
+            the text; Ctrl+Home returns to its beginning. Escape pauses
+            shortcuts to read the formatted card. Tab moves to the buttons.
           </p>
+          <label htmlFor="study-reader" className="reader-label">
+            {session.revealed ? "Answer" : "Question"} — Card {number} of{" "}
+            {summary.total}
+          </label>
+          <textarea
+            id="study-reader"
+            className="study-reader"
+            ref={keyboard}
+            value={readingText}
+            aria-readonly="true"
+            inputMode="none"
+            spellCheck={false}
+            rows={6}
+            aria-describedby="keyboard-study-help"
+            onFocus={() => setKeyboardActive(true)}
+            onChange={(event) => {
+              event.currentTarget.value = readingText;
+            }}
+            onPaste={(event) => event.preventDefault()}
+            onCut={(event) => event.preventDefault()}
+            onDrop={(event) => event.preventDefault()}
+          />
           <div className="button-row">
             <button onClick={resumeKeyboard}>Resume keyboard study</button>
             <button onClick={readCard}>Read card</button>
@@ -167,14 +196,6 @@ export default function StudySession({
           </div>
         </div>
       )}
-      <div
-        className="sr-only"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {announcement}
-      </div>
       <div
         className="study-card"
         onFocusCapture={() => setKeyboardActive(false)}

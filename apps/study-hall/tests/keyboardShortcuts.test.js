@@ -87,10 +87,10 @@ describe("default study shortcuts", () => {
       ),
     ).toBeNull();
     expect(
-      studyShortcut(
-        event("3", { target: document.createElement("button") }),
-        { ...options, revealed: true },
-      ),
+      studyShortcut(event("3", { target: document.createElement("button") }), {
+        ...options,
+        revealed: true,
+      }),
     ).toBe("good");
     expect(
       studyShortcut(event("3"), {
@@ -123,6 +123,28 @@ describe("default study shortcuts", () => {
     expect(studyShortcut(event(" "), disabled)).toBeNull();
     expect(studyShortcut(event("1"), disabled)).toBeNull();
     expect(studyShortcut(event("z", { ctrlKey: true }), disabled)).toBeNull();
+  });
+  it("permits study keys only in the explicitly registered read-only card reader", () => {
+    const reader = document.createElement("textarea");
+    reader.setAttribute("aria-readonly", "true");
+    const reading = { ...options, studyTextControl: reader, revealed: true };
+    expect(studyShortcut(event(" ", { target: reader }), reading)).toBe("good");
+    expect(studyShortcut(event("1", { target: reader }), reading)).toBe(
+      "again",
+    );
+    expect(
+      studyShortcut(event("z", { target: reader, ctrlKey: true }), reading),
+    ).toBe("undo");
+    expect(studyShortcut(event(" ", { target: reader }), options)).toBeNull();
+    reader.removeAttribute("aria-readonly");
+    expect(studyShortcut(event(" ", { target: reader }), reading)).toBeNull();
+    reader.setAttribute("aria-readonly", "true");
+    expect(
+      studyShortcut(event(" ", { target: reader }), {
+        ...reading,
+        dialogOpen: true,
+      }),
+    ).toBeNull();
   });
   it("keeps remapped keys and audio working without changing Space for Good", () => {
     const remapped = {
