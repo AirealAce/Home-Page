@@ -32,6 +32,7 @@ export function startSession(deck) {
     stats,
     revealed: false,
     revision: 0,
+    undoStack: [],
   };
 }
 export function rateCard(session, rating) {
@@ -45,6 +46,13 @@ export function rateCard(session, rating) {
   current.finalRating = rating;
   if (rating === "again") queue.push(id);
   else current.attemptsToSuccess = current.attempts;
+  const undoEntry = {
+    cardId: id,
+    rating,
+    cardStats: session.stats[id],
+    nextCardId: queue[0] || null,
+    nextCardStats: queue.length ? session.stats[queue[0]] : null,
+  };
   if (queue.length) stats[queue[0]].presented++;
   return {
     ...session,
@@ -52,7 +60,31 @@ export function rateCard(session, rating) {
     stats,
     revealed: false,
     revision: session.revision + 1,
+    undoStack: [...(session.undoStack || []), undoEntry],
     ...(!queue.length ? { completedAt: Date.now() } : {}),
+  };
+}
+export function undoRating(session) {
+  if (!session?.undoStack?.length) return session;
+  const undoStack = session.undoStack.slice(),
+    previous = undoStack.pop();
+  const queue = session.queue.slice();
+  if (previous.rating === "again") queue.pop();
+  queue.unshift(previous.cardId);
+  const stats = {
+    ...session.stats,
+    [previous.cardId]: { ...previous.cardStats },
+  };
+  if (previous.nextCardId)
+    stats[previous.nextCardId] = { ...previous.nextCardStats };
+  const { completedAt, ...rest } = session;
+  return {
+    ...rest,
+    queue,
+    stats,
+    undoStack,
+    revealed: true,
+    revision: session.revision + 1,
   };
 }
 export function summarize(session) {

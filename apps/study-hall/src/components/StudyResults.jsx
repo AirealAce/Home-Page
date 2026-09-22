@@ -1,10 +1,21 @@
 import { useEffect, useRef } from "react";
 import { summarize, RATINGS } from "../services/studyEngine";
 import { questionText } from "../services/cardContent";
-export default function StudyResults({ result, deck, onLibrary, onRestart }) {
+import { useStudyShortcuts } from "../hooks/useStudyShortcuts";
+export default function StudyResults({
+  result,
+  deck,
+  onLibrary,
+  onRestart,
+  onUndo,
+  canUndo,
+  settings,
+  dialogOpen,
+}) {
   const heading = useRef(null),
     summary = summarize(result);
   useEffect(() => heading.current?.focus(), [result.id]);
+  useStudyShortcuts({ settings, dialogOpen, canUndo, studying: false, onUndo });
   return (
     <div className="results">
       <p className="eyebrow">One stack wiser</p>
@@ -60,6 +71,16 @@ export default function StudyResults({ result, deck, onLibrary, onRestart }) {
           Study this deck again
         </button>
         <button onClick={onLibrary}>Back to library</button>
+        {canUndo && (
+          <button
+            onClick={onUndo}
+            aria-keyshortcuts={
+              settings.shortcuts ? "Control+z Meta+z" : undefined
+            }
+          >
+            Undo last rating {settings.shortcuts && <kbd>Ctrl+Z</kbd>}
+          </button>
+        )}
       </div>
       <h2>Every card, every attempt</h2>
       <p className="small">

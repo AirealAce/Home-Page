@@ -44,4 +44,16 @@ export const storageService = {
   listResults: () => transaction("results", "readonly", (s) => s.getAll()),
   saveResult: (result) =>
     transaction("results", "readwrite", (s) => s.put(result)),
+  async reopenSession(session) {
+    const db = await database();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(["meta", "results"], "readwrite");
+      tx.objectStore("meta").put(session, "active");
+      tx.objectStore("results").delete(session.id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () =>
+        reject(tx.error || new Error("Could not save the undone rating."));
+    });
+  },
 };

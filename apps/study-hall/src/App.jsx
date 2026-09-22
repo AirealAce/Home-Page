@@ -5,12 +5,8 @@ import StudyResults from "./components/StudyResults";
 import KeyboardShortcutsDialog from "./components/KeyboardShortcutsDialog";
 import { storageService as storage } from "./services/storageService";
 import { importApkg } from "./services/apkgParser";
-import { DEFAULT_KEYS, rateCard, startSession } from "./services/studyEngine";
-const DEFAULT_SETTINGS = {
-  shortcuts: false,
-  autoplay: false,
-  keys: DEFAULT_KEYS,
-};
+import { rateCard, startSession, undoRating } from "./services/studyEngine";
+import { DEFAULT_SETTINGS, loadPreferences } from "./services/preferences";
 export default function App() {
   const [decks, setDecks] = useState([]),
     [history, setHistory] = useState([]),
@@ -46,12 +42,7 @@ export default function App() {
       .then(([d, h, s, a]) => {
         setDecks(d);
         setHistory(h.sort((a, b) => b.completedAt - a.completedAt));
-        if (s)
-          setSettings({
-            ...DEFAULT_SETTINGS,
-            ...s,
-            keys: { ...DEFAULT_KEYS, ...s.keys },
-          });
+        setSettings(loadPreferences(s));
         if (
           a?.queue?.length &&
           d.some((x) => x.id === a.deckId) &&
@@ -118,6 +109,7 @@ export default function App() {
   }
   function reveal() {
     if (!active.revealed) {
+      setStatus("");
       const next = { ...active, revealed: true };
       setActive(next);
       save(() => storage.setSetting("active", next));
@@ -131,6 +123,7 @@ export default function App() {
     });
     const next = rateCard(active, rating);
     if (next === active) return;
+    setStatus("");
     setActive(next);
     if (!next.queue.length) {
       setResult(next);
@@ -140,6 +133,20 @@ export default function App() {
         await storage.saveResult(next);
         await storage.setSetting("active", null);
       });
+    } else save(() => storage.setSetting("active", next));
+  }
+  function undo() {
+    const session = view === "results" ? result : active;
+    if (!session || session.id !== active?.id || ratingLock.current) return;
+    const next = undoRating(session);
+    if (next === session) return;
+    setActive(next);
+    setView("study");
+    setStatus("Last rating undone.");
+    if (session.completedAt) {
+      setResult(null);
+      setHistory((h) => h.filter((r) => r.id !== session.id));
+      save(() => storage.reopenSession(next));
     } else save(() => storage.setSetting("active", next));
   }
   const currentDeck = decks.find(
@@ -211,6 +218,7 @@ export default function App() {
             session={active}
             onReveal={reveal}
             onRate={rate}
+            onUndo={undo}
             onLibrary={library}
             settings={settings}
             dialogOpen={dialog}
@@ -222,6 +230,10 @@ export default function App() {
             deck={currentDeck}
             onLibrary={library}
             onRestart={() => start(currentDeck, true)}
+            onUndo={undo}
+            canUndo={active?.id === result.id && !!result.undoStack?.length}
+            settings={settings}
+            dialogOpen={dialog}
           />
         )}
       </main>

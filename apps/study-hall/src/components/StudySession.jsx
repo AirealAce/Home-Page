@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { cardContent } from "../services/cardContent";
 import { RATINGS, summarize } from "../services/studyEngine";
 import { replayAudio, stopAudio } from "../services/audioService";
+import { useStudyShortcuts } from "../hooks/useStudyShortcuts";
 export default function StudySession({
   deck,
   session,
   onReveal,
   onRate,
+  onUndo,
   onLibrary,
   settings,
   dialogOpen,
@@ -47,43 +49,18 @@ export default function StudySession({
       replayAudio(session.revealed ? back.audio : front.audio, setAudioError);
     return stopAudio;
   }, [session.revision, session.revealed, settings.autoplay]);
-  useEffect(() => {
-    if (!settings.shortcuts || dialogOpen) return;
-    function keydown(e) {
-      if (
-        e.repeat ||
-        e.defaultPrevented ||
-        e.ctrlKey ||
-        e.altKey ||
-        e.metaKey ||
-        e.shiftKey ||
-        e.isComposing
-      )
-        return;
-      if (
-        e.target.closest(
-          'input,textarea,select,button,a,[contenteditable="true"],dialog',
-        )
-      )
-        return;
-      const key = e.key.toLowerCase();
-      if (!session.revealed && (key === " " || key === "enter")) {
-        e.preventDefault();
-        onReveal();
-      } else if (key === settings.keys.replay && audio.length) {
-        e.preventDefault();
-        replayAudio(audio, setAudioError);
-      } else if (session.revealed) {
-        const rating = RATINGS.find((r) => settings.keys[r] === key);
-        if (rating) {
-          e.preventDefault();
-          onRate(rating);
-        }
-      }
-    }
-    document.addEventListener("keydown", keydown);
-    return () => document.removeEventListener("keydown", keydown);
-  }, [settings, session, audio, dialogOpen, onReveal, onRate]);
+  const canUndo = !!session.undoStack?.length;
+  useStudyShortcuts({
+    settings,
+    dialogOpen,
+    canUndo,
+    revealed: session.revealed,
+    hasAudio: audio.length > 0,
+    onReveal,
+    onRate,
+    onUndo,
+    onReplay: () => replayAudio(audio, setAudioError),
+  });
   const summary = summarize(session),
     number = deck.cards.indexOf(card) + 1;
   return (
@@ -91,6 +68,15 @@ export default function StudySession({
       <div className="study-top">
         <button className="text-button" onClick={onLibrary}>
           ← Pause & return to library
+        </button>
+        <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          aria-keyshortcuts={
+            settings.shortcuts ? "Control+z Meta+z" : undefined
+          }
+        >
+          Undo last rating {settings.shortcuts && <kbd>Ctrl+Z</kbd>}
         </button>
         <span className="small">
           {summary.completed} of {summary.total} completed
@@ -186,12 +172,15 @@ export default function StudySession({
               <button
                 key={rating}
                 onClick={() => onRate(rating)}
-                aria-label={`${rating[0].toUpperCase() + rating.slice(1)}${settings.shortcuts ? `, keyboard shortcut ${settings.keys[rating]}` : ""}`}
+                aria-label={`${rating[0].toUpperCase() + rating.slice(1)}${settings.shortcuts ? `, keyboard shortcut ${settings.keys[rating]}${rating === "good" ? " or Space" : ""}` : ""}`}
               >
                 <span>
                   {rating[0].toUpperCase() + rating.slice(1)}{" "}
                   {settings.shortcuts && (
-                    <kbd>{settings.keys[rating].toUpperCase()}</kbd>
+                    <kbd>
+                      {settings.keys[rating].toUpperCase()}
+                      {rating === "good" ? " / Space" : ""}
+                    </kbd>
                   )}
                 </span>
                 <small>
@@ -211,7 +200,10 @@ export default function StudySession({
       )}
       <p className="shortcut-status small">
         Study shortcuts are {settings.shortcuts ? "on" : "off"}. Change them in
-        Keyboard & settings. Again returns this card to the end of the queue.
+        Keyboard & settings.{" "}
+        {settings.shortcuts &&
+          "Space reveals the answer, then rates Good. Ctrl+Z undoes the last rating. "}
+        Again returns this card to the end of the queue.
       </p>
     </div>
   );

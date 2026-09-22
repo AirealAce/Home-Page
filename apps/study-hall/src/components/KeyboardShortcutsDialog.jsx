@@ -42,8 +42,9 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
       </div>
       <h2 id="dialog-title">Keyboard & settings</h2>
       <p>
-        Every study action also has a visible button. Shortcuts start turned off
-        so your screen reader keeps its usual navigation keys.
+        Every study action also has a visible button. Shortcuts are on by
+        default. You can turn them off here if you prefer your screen reader’s
+        usual navigation keys.
       </p>
       <form onSubmit={save}>
         <label className="check">
@@ -64,8 +65,17 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
         </label>
         <p>
           With shortcuts enabled: <kbd>Space</kbd> or <kbd>Enter</kbd> reveals
-          the answer when the question has focus. Shortcuts never run in text
-          fields, on links, in dialogs, or with modifier keys.
+          the answer when the question has focus. After revealing,{" "}
+          <kbd>Space</kbd> rates Good. <kbd>1</kbd> Again, <kbd>2</kbd> Hard,{" "}
+          <kbd>3</kbd> Good, <kbd>4</kbd> Easy are the default rating keys.{" "}
+          <kbd>Ctrl+Z</kbd> (or <kbd>⌘Z</kbd> on Mac) undoes the last rating and
+          returns to that card with its answer shown. Repeated undo steps back
+          through this session’s ratings.
+        </p>
+        <p>
+          Shortcuts never run in typing fields or dialogs. Buttons and links
+          keep their normal Space/Enter behavior. Other modifier-key
+          combinations are left alone.
         </p>
         <fieldset>
           <legend>Change rating and audio shortcuts</legend>

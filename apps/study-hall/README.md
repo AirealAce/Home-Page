@@ -19,16 +19,17 @@ Choose **Import Anki Deck**, or use the labeled file picker. Multiple `.apkg` fi
 
 Text, lists, tables, package images, and `[sound:filename]`/HTML audio are supported. Package media is stored as Blobs in IndexedDB and displayed through temporary object URLs. Imported scripts and styles are removed; remote media is not fetched. An image without original alternative text gets an explicit missing-description notice, not an invented description. Browser-supported audio formats can be replayed, stopped, or optionally autoplayed.
 
-Select a deck, recall the answer, reveal it, and choose Again, Hard, Good, or Easy. Again moves the card to the end of the queue. Hard, Good, and Easy complete the card. A session ends when all cards have succeeded. The score is the rounded percentage completed on the first attempt; the other totals and the semantic results table show every response separately.
+Select a deck, recall the answer, reveal it, and choose Again, Hard, Good, or Easy. Again moves the card to the end of the queue. Hard, Good, and Easy complete the card. Ctrl+Z or the visible **Undo last rating** button reverses the last rating, restores the queue and statistics, and reopens that card with its answer shown. Repeated undo walks backward through ratings in the current session. Undo is also available immediately after completing the final card; saved results are removed atomically when that session reopens. Older completed sessions opened from history cannot be undone. A session ends when all cards have succeeded. The score is the rounded percentage completed on the first attempt; the other totals and the semantic results table show every response separately.
 
 Decks, preferences, the most recent unfinished session, last selected deck, and completed results stay in this browser. Reloading preserves the session, including whether its answer was revealed. Return to the library to resume it. Starting a different deck replaces the single paused session. Clearing site data removes saved data. Keep the original `.apkg` files. Different devices, browsers, profiles, and site domains have separate libraries. Use one study tab at a time.
 
 ## Keyboard and screen readers
 
 - Every action has a native button; all functionality works without hotkeys.
-- Shortcuts are **off by default**. Enable or remap them in **Keyboard & settings**.
-- With shortcuts enabled and the study content focused: Space/Enter reveals; 1 Again, 2 Hard, 3 Good, 4 Easy; R replays available audio.
-- Character shortcuts do not run in form controls, links, buttons, editable areas, or dialogs. Modifier combinations, composition, and key repeats are left alone.
+- Shortcuts are **on by default**. Disable or remap them in **Keyboard & settings**. An explicitly saved opt-out remains respected.
+- With study content focused: **Space/Enter reveals**; once revealed, **Space rates Good**. **1 Again, 2 Hard, 3 Good, 4 Easy**; R replays available audio.
+- **Ctrl+Z** (or **Cmd+Z** on Mac) undoes the previous rating. Undo history persists with an unfinished session. Ratings made before the undo feature was added have no undo history.
+- Character shortcuts do not run in form controls, links, buttons, editable areas, or dialogs. Buttons keep native Space/Enter activation. Typing fields keep their own Ctrl+Z. Other modifier combinations, composition, and key repeats are left alone.
 - JAWS/NVDA browse mode can intercept character keys. Native buttons work in browse mode. To send optional shortcuts to the page, use your screen reader’s forms/focus mode. The page does not force `role="application"`.
 - Starting or rating a card focuses its question group, with the card number as its name and the question as its description. Reveal focuses the answer group. Finishing focuses the results heading with the score. The dialog uses native modal behavior and restores its trigger’s focus.
 - A skip link, headings, landmarks, labeled progress, visible focus indicators, and real table headers support navigation. The results table scrolls horizontally at narrow widths; the rest of the interface reflows. Reduced-motion and forced-color preferences are supported.
@@ -48,7 +49,8 @@ This is a session-based learning queue, not Anki’s long-term scheduler or Anki
 - `src/services/apkgCore.js`, `apkgParser.js`, `apkg.worker.js`, `templates.js`: package parsing and card generation.
 - `cardContent.js`: safe, readable content and package-media rendering.
 - `studyEngine.js`: pure queue, rating, and statistics functions; independent of React and persistence.
-- `storageService.js`: asynchronous storage boundary (`listDecks`, `saveDecks`, `getSetting`, `setSetting`, `listResults`, `saveResult`).
+- `storageService.js`: asynchronous storage boundary (`listDecks`, `saveDecks`, `getSetting`, `setSetting`, `listResults`, `saveResult`, and atomic `reopenSession`).
+- `keyboardShortcuts.js`, `preferences.js`, `hooks/useStudyShortcuts.js`: default bindings, saved opt-outs, safe key handling, and UI event wiring.
 - `audioService.js`: playback and cancellation.
 - `src/components`: deck library, study workflow, results, and settings dialog.
 
