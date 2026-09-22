@@ -589,34 +589,43 @@ input::file-selector-button {
   gap: 20px;
   margin-bottom: 40px;
 }
-.keyboard-study {
+.study-panel {
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 16px;
   margin: 20px 0;
   background: var(--panel);
 }
-.keyboard-study .button-row {
-  margin: 0;
+.study-panel .button-row {
+  margin: 24px 0 0;
 }
-.reader-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 8px;
+.study-pane {
+  height: 32rem;
+  background: #141414;
+  border: 1px solid #77776f;
+  border-radius: 8px;
+}
+.keyboard-study {
+  height: 100%;
+}
+.keyboard-study[hidden] {
+  display: none;
 }
 .study-reader {
   display: block;
   width: 100%;
-  min-height: 10rem;
-  margin-bottom: 20px;
-  padding: 16px;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 24px;
   font: inherit;
   line-height: 1.7;
   color: var(--paper);
-  background: #141414;
-  border: 1px solid #77776f;
+  background: transparent;
+  border: 0;
   border-radius: 8px;
-  resize: vertical;
+  resize: none;
+  overflow-y: auto;
   overscroll-behavior: contain;
   /* Keep the native reading position exposed to assistive technology
      without displaying an editing caret or a selected-text highlight. */
@@ -625,6 +634,21 @@ input::file-selector-button {
 .study-reader::selection {
   color: inherit;
   background: transparent;
+}
+.formatted-reader {
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 24px;
+  border-radius: 8px;
+}
+.formatted-reader h2 {
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+.formatted-reader .card-content {
+  font-size: 1rem;
+  line-height: 1.7;
 }
 .text-button {
   padding: 6px 0;
@@ -662,32 +686,6 @@ progress::-webkit-progress-value {
   background: var(--paper);
   border-radius: 10px;
 }
-.study-card {
-  border: 2px solid #85857a;
-  border-radius: 20px;
-  background: #1d1d1b;
-  box-shadow: 7px 7px 0 #070707;
-  padding: 28px 34px;
-}
-.card-caption {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 16px;
-}
-.card-side {
-  padding: 28px 0 14px;
-}
-.card-side h2 {
-  font-size: 0.68rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 18px;
-}
 .card-content {
   font-size: 1.2rem;
   line-height: 1.85;
@@ -720,10 +718,6 @@ progress::-webkit-progress-value {
 .card-content p:last-child {
   margin-bottom: 0;
 }
-.answer-side {
-  border-top: 1px dashed #727269;
-  margin-top: 15px;
-}
 .audio-controls {
   display: flex;
   gap: 12px;
@@ -740,9 +734,6 @@ progress::-webkit-progress-value {
 .big-button {
   font-size: 1rem;
   padding: 14px 34px;
-}
-.reveal p {
-  margin-top: 16px;
 }
 .ratings {
   margin-top: 32px;
@@ -1066,10 +1057,6 @@ legend {
     gap: 8px;
     margin-bottom: 28px;
   }
-  .study-card {
-    padding: 22px 20px;
-    box-shadow: 4px 4px 0 #070707;
-  }
   .card-content {
     font-size: 1.05rem;
   }
@@ -1098,9 +1085,6 @@ legend {
   .big-button kbd {
     display: block;
     margin: 8px 0 0;
-  }
-  .card-caption {
-    flex-wrap: wrap;
   }
   dialog {
     padding: 22px;

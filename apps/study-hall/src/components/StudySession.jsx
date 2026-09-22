@@ -13,8 +13,7 @@ export default function StudySession({
   settings,
   dialogOpen,
 }) {
-  const question = useRef(null),
-    answer = useRef(null),
+  const formatted = useRef(null),
     keyboard = useRef(null),
     [audioError, setAudioError] = useState(""),
     [keyboardActive, setKeyboardActive] = useState(true),
@@ -40,6 +39,13 @@ export default function StudySession({
   const card = deck.cards.find((c) => c.id === session.queue[0]);
   const front = useMemo(() => cardContent(card.front, media), [card, media]);
   const back = useMemo(() => cardContent(card.back, media), [card, media]);
+  const deckHasAudio = useMemo(
+    () =>
+      deck.cards.some((item) =>
+        /\[sound:|<audio\b/i.test(item.front + item.back),
+      ),
+    [deck],
+  );
   const audio = session.revealed
     ? [...new Set([...front.audio, ...back.audio])]
     : front.audio;
@@ -68,16 +74,28 @@ export default function StudySession({
   useLayoutEffect(() => {
     // Start at the card text, with its context one native line above it.
     // Announce changes separately; selection alone is unreliable in JAWS.
-    if (settings.shortcuts) {
-      setKeyboardActive(true);
-      focusCurrentText();
-    } else (session.revealed ? answer : question).current?.focus();
+    setKeyboardActive(settings.shortcuts);
     setAudioError("");
   }, [
     session.id,
     session.revision,
     session.revealed,
     settings.shortcuts,
+    readingText,
+    readingStart,
+  ]);
+  useLayoutEffect(() => {
+    if (settings.shortcuts && keyboardActive) focusCurrentText();
+    else {
+      formatted.current?.focus();
+      if (formatted.current) formatted.current.scrollTop = 0;
+    }
+  }, [
+    session.id,
+    session.revision,
+    session.revealed,
+    settings.shortcuts,
+    keyboardActive,
     readingText,
     readingStart,
   ]);
@@ -104,7 +122,6 @@ export default function StudySession({
   ]);
   function readCard() {
     setKeyboardActive(false);
-    (session.revealed ? answer : question).current?.focus();
   }
   function resumeKeyboard() {
     setKeyboardActive(true);
@@ -178,143 +195,104 @@ export default function StudySession({
         value={summary.completed}
         max={summary.total}
       />
-      {settings.shortcuts && (
-        <div
-          className="keyboard-study"
-          role="application"
-          aria-label="Keyboard study"
-          onKeyDown={(event) => {
-            if (
-              event.key === "Escape" &&
-              !event.ctrlKey &&
-              !event.altKey &&
-              !event.metaKey
-            ) {
-              event.preventDefault();
-              readCard();
-            }
-          }}
-        >
+      <div className="study-panel">
+        {settings.shortcuts && (
           <p id="keyboard-study-help" className="small">
             Space shows the answer, then rates Good. Use 1–4 to rate and Ctrl+Z
             to undo. Card text is announced automatically. Up Arrow at the start
             of the text reads the card label and number. Arrow keys move through
-            the text; Ctrl+Home returns to the top. Escape pauses shortcuts to
-            read the formatted card. Tab moves to the buttons.
+            the text; Ctrl+Home returns to the top. Escape opens the formatted
+            view in this pane and pauses shortcuts. Tab moves to the buttons.
           </p>
-          <label htmlFor="study-reader" className="sr-only">
-            Card reader
-          </label>
-          <textarea
-            id="study-reader"
-            className="study-reader"
-            ref={keyboard}
-            value={readerText}
-            aria-readonly="true"
-            inputMode="none"
-            spellCheck={false}
-            rows={6}
-            aria-describedby="keyboard-study-help"
-            onFocus={() => setKeyboardActive(true)}
-            onChange={(event) => {
-              event.currentTarget.value = readerText;
-            }}
-            onPaste={(event) => event.preventDefault()}
-            onCut={(event) => event.preventDefault()}
-            onDrop={(event) => event.preventDefault()}
-          />
+        )}
+        <div className="study-pane">
+          {settings.shortcuts && (
+            <div
+              className="keyboard-study"
+              role="application"
+              aria-label="Keyboard study"
+              hidden={!keyboardActive}
+              onKeyDown={(event) => {
+                if (
+                  event.key === "Escape" &&
+                  !event.ctrlKey &&
+                  !event.altKey &&
+                  !event.metaKey
+                ) {
+                  event.preventDefault();
+                  readCard();
+                }
+              }}
+            >
+              <label htmlFor="study-reader" className="sr-only">
+                Card reader
+              </label>
+              <textarea
+                id="study-reader"
+                className="study-reader"
+                ref={keyboard}
+                value={readerText}
+                aria-readonly="true"
+                inputMode="none"
+                spellCheck={false}
+                rows={18}
+                aria-describedby="keyboard-study-help"
+                onFocus={() => setKeyboardActive(true)}
+                onChange={(event) => {
+                  event.currentTarget.value = readerText;
+                }}
+                onPaste={(event) => event.preventDefault()}
+                onCut={(event) => event.preventDefault()}
+                onDrop={(event) => event.preventDefault()}
+              />
+            </div>
+          )}
+          {(!settings.shortcuts || !keyboardActive) && (
+            <div
+              className="formatted-reader"
+              role="group"
+              tabIndex={-1}
+              ref={formatted}
+              aria-labelledby="card-label"
+              aria-describedby="card-content"
+            >
+              <h2 id="card-label">{cardContext}</h2>
+              <div
+                id="card-content"
+                className="card-content"
+                dangerouslySetInnerHTML={{
+                  __html: session.revealed ? back.html : front.html,
+                }}
+              />
+            </div>
+          )}
+        </div>
+        {settings.shortcuts && (
           <div className="button-row">
             <button onClick={resumeKeyboard}>Resume keyboard study</button>
-            <button onClick={readCard}>Read card</button>
+            <button onClick={readCard}>Read formatted card</button>
             <button onClick={resumeKeyboard}>
               Repeat current question or answer
             </button>
           </div>
-        </div>
-      )}
-      <div
-        className="study-card"
-        onFocusCapture={() => setKeyboardActive(false)}
-      >
-        <div className="card-caption">
-          <span>
-            Card {number} of {summary.total}
-          </span>
-          <span>
-            {session.stats[card.id].presented > 1
-              ? `Review · attempt ${session.stats[card.id].attempts + 1}`
-              : "Take your time"}
-          </span>
-        </div>
-        <div
-          className="card-side"
-          role="group"
-          tabIndex={-1}
-          ref={question}
-          aria-labelledby="question-label"
-          aria-describedby="question-content"
-        >
-          <h2 id="question-label">
-            Question{" "}
-            <span className="sr-only">
-              — Card {number} of {summary.total}
-            </span>
-          </h2>
-          <div
-            id="question-content"
-            className="card-content"
-            dangerouslySetInnerHTML={{ __html: front.html }}
-          />
-        </div>
-        {session.revealed && (
-          <div
-            className="card-side answer-side"
-            role="group"
-            tabIndex={-1}
-            ref={answer}
-            aria-labelledby="answer-label"
-            aria-describedby="answer-content"
-          >
-            <h2 id="answer-label">Answer</h2>
-            <div
-              id="answer-content"
-              className="card-content"
-              dangerouslySetInnerHTML={{ __html: back.html }}
-            />
-          </div>
         )}
-        {!!audio.length && (
-          <div className="audio-controls">
-            <button onClick={() => replayAudio(audio, setAudioError)}>
-              ↻ Replay Audio
-              {settings.shortcuts && (
-                <kbd>{settings.keys.replay.toUpperCase()}</kbd>
-              )}
-            </button>
-            <button onClick={stopAudio}>Stop audio</button>
-          </div>
-        )}
-        {audioError && (
-          <p role="alert" className="notice">
-            {audioError}
-          </p>
-        )}
-      </div>
-      {!session.revealed ? (
         <div className="reveal">
-          <button className="primary big-button" onClick={onReveal}>
+          <button
+            className="primary big-button"
+            onClick={onReveal}
+            disabled={session.revealed}
+          >
             Show Answer {settings.shortcuts && <kbd>Space / Enter</kbd>}
           </button>
-          <p className="small">Think it through. Reveal when you’re ready.</p>
         </div>
-      ) : (
         <section className="ratings" aria-labelledby="rating-title">
-          <h2 id="rating-title">How did you do?</h2>
+          <h2 id="rating-title">Rate your answer</h2>
           <div className="rating-grid">
             {RATINGS.map((rating, i) => (
               <button
                 key={rating}
                 onClick={() => onRate(rating)}
+                disabled={!session.revealed}
                 aria-label={`${rating[0].toUpperCase() + rating.slice(1)}${settings.shortcuts ? `, keyboard shortcut ${settings.keys[rating]}${rating === "good" ? " or Space" : ""}` : ""}`}
               >
                 <span>
@@ -340,7 +318,26 @@ export default function StudySession({
             ))}
           </div>
         </section>
-      )}
+        {deckHasAudio && (
+          <div
+            className="audio-controls"
+            style={{ visibility: audio.length ? "visible" : "hidden" }}
+          >
+            <button onClick={() => replayAudio(audio, setAudioError)}>
+              ↻ Replay Audio
+              {settings.shortcuts && (
+                <kbd>{settings.keys.replay.toUpperCase()}</kbd>
+              )}
+            </button>
+            <button onClick={stopAudio}>Stop audio</button>
+          </div>
+        )}
+        {audioError && (
+          <p role="alert" className="notice">
+            {audioError}
+          </p>
+        )}
+      </div>
       <p className="shortcut-status small">
         Study shortcuts are{" "}
         {settings.shortcuts
@@ -350,7 +347,7 @@ export default function StudySession({
           : "off"}
         . Change them in Keyboard & settings.{" "}
         {settings.shortcuts &&
-          "Space reveals the answer, then rates Good. Ctrl+Z undoes the last rating. Escape pauses shortcuts to read the card; Resume keyboard study starts them again. "}
+          "Space reveals the answer, then rates Good. Ctrl+Z undoes the last rating. Escape switches this pane to its formatted view; Resume keyboard study returns to the reader. "}
         Again returns this card to the end of the queue.
       </p>
     </div>

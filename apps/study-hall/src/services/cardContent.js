@@ -53,24 +53,29 @@ export function questionText(raw, { preserveLines = false } = {}) {
   doc
     .querySelectorAll("th,td")
     .forEach((el) => el.append(doc.createTextNode("\t")));
+  doc
+    .querySelectorAll("p,div,li,ul,ol,blockquote,pre,caption,tr")
+    .forEach((el) => {
+      if (preserveLines) el.prepend(doc.createTextNode("\n"));
+      el.append(doc.createTextNode(preserveLines ? "\n" : " "));
+    });
   if (preserveLines) {
-    doc.querySelectorAll("li").forEach((el) => {
+    // Flatten nested blocks before adding each marker, so <li><p>Text</p></li>
+    // becomes "• Text", not a bullet followed by an empty line.
+    [...doc.querySelectorAll("li")].reverse().forEach((el) => {
       const siblings = [...el.parentElement.children].filter(
         (item) => item.tagName === "LI",
       );
-      el.prepend(
-        doc.createTextNode(
-          el.parentElement.tagName === "OL"
-            ? `${siblings.indexOf(el) + 1}. `
-            : "• ",
-        ),
+      const marker =
+        el.parentElement.tagName === "OL"
+          ? `${siblings.indexOf(el) + 1}.`
+          : "•";
+      const content = el.textContent.trim();
+      el.replaceWith(
+        doc.createTextNode(content ? `\n${marker} ${content}` : ""),
       );
     });
   }
-  doc.querySelectorAll("p,div,li,blockquote,pre,caption,tr").forEach((el) => {
-    if (preserveLines) el.prepend(doc.createTextNode("\n"));
-    el.append(doc.createTextNode(preserveLines ? "\n" : " "));
-  });
   if (preserveLines)
     return doc.body.textContent
       .replace(/[^\S\n]+/g, " ")

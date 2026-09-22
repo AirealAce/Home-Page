@@ -109,11 +109,11 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
           Arrow navigation. There is no visible caret or highlight. Use arrow
           keys to read, Shift+arrows to select, Ctrl+Home to return to the top,
           and Ctrl+A then Ctrl+C to copy the whole card side. Card text cannot
-          be edited. Press Escape or choose Read card to pause shortcuts and
-          read the full question and answer with normal screen reader
-          navigation. Choose Resume keyboard study to return, or Repeat current
-          question or answer to hear it again. Tab and Shift+Tab remain
-          available to leave the area.
+          be edited. Press Escape or choose Read formatted card to pause
+          shortcuts and switch the same pane to the current side’s original
+          formatting, images, and links. Choose Resume keyboard study to return,
+          or Repeat current question or answer to hear it again. Tab and
+          Shift+Tab remain available to leave the area.
         </p>
         {error && (
           <p role="alert" className="notice">

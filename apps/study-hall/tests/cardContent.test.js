@@ -14,7 +14,7 @@ it("preserves paragraphs, list items, table rows, and alternatives for line-by-l
       '<p>One<br>Two</p><ul><li>Alpha</li><li>Beta</li></ul><img alt="Diagram" src="x">',
       { preserveLines: true },
     ),
-  ).toBe("One\nTwo\n\n• Alpha\n\n• Beta\n[Image: Diagram]");
+  ).toBe("One\nTwo\n\n• Alpha\n• Beta\n[Image: Diagram]");
   expect(
     questionText(
       "<table><tr><th>Model</th><th>Example</th></tr><tr><td>Social</td><td>Barriers</td></tr></table>",
@@ -25,7 +25,7 @@ it("preserves paragraphs, list items, table rows, and alternatives for line-by-l
     questionText("<ol><li>First</li><li>Second</li></ol>", {
       preserveLines: true,
     }),
-  ).toBe("1. First\n\n2. Second");
+  ).toBe("1. First\n2. Second");
 });
 it("removes active markup, remote media, colors and event handlers", () => {
   const c = cardContent(
@@ -33,6 +33,27 @@ it("removes active markup, remote media, colors and event handlers", () => {
   );
   expect(c.html).not.toMatch(/script|onerror|style=|id=|src=|href=/);
   expect(c.text).toContain("Readable");
+});
+it("keeps bullets and numbers beside text wrapped in paragraphs and nested blocks", () => {
+  expect(
+    questionText(
+      "<ul><li><p>First item</p><p>More detail</p></li><li><div><p>Second item</p></div></li></ul>",
+      { preserveLines: true },
+    ),
+  ).toBe("• First item\n\nMore detail\n• Second item");
+  expect(
+    questionText(
+      "<ol><li><div>First item</div></li><li><p>Second item</p></li><li><div>Third item</div></li></ol>",
+      { preserveLines: true },
+    ),
+  ).toBe("1. First item\n2. Second item\n3. Third item");
+  const nested = questionText(
+    "<ul><li><p>Parent item</p><ul><li><div>Child item</div></li></ul></li></ul>",
+    { preserveLines: true },
+  );
+  expect(nested).toContain("• Parent item");
+  expect(nested).toContain("• Child item");
+  expect(nested).not.toMatch(/^[•\d.]+\s*$/m);
 });
 it("resolves package images and extracts replay audio without autoplay", () => {
   const c = cardContent(

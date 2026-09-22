@@ -18,11 +18,15 @@ const deck = {
     { id: "b", front: "Second question", back: "Second answer" },
   ],
 };
-function Harness({ settings = DEFAULT_SETTINGS, dialogOpen = false }) {
-  const [session, setSession] = useState(() => startSession(deck));
+function Harness({
+  settings = DEFAULT_SETTINGS,
+  dialogOpen = false,
+  studyDeck = deck,
+}) {
+  const [session, setSession] = useState(() => startSession(studyDeck));
   return (
     <StudySession
-      deck={deck}
+      deck={studyDeck}
       session={session}
       settings={settings}
       onReveal={() => setSession((s) => ({ ...s, revealed: true }))}
@@ -121,25 +125,35 @@ describe("continuous keyboard study", () => {
       expect(announcement.textContent).toBe(message);
     }
     expect(focusChanges).toEqual([]);
-    expect(
-      host
-        .querySelector('[role="application"]')
-        .contains(host.querySelector(".study-card")),
-    ).toBe(false);
+    expect(host.querySelectorAll(".study-pane")).toHaveLength(1);
+    expect(host.querySelector(".study-card")).toBeNull();
+    expect(host.querySelector(".formatted-reader")).toBeNull();
     expect(host.querySelectorAll("[aria-live]")).toHaveLength(1);
   });
   it("offers a reading escape that pauses shortcuts and an explicit return", () => {
     act(() => root.render(<Harness />));
     press("Escape");
-    expect(document.activeElement).toBe(host.querySelector(".card-side"));
+    expect(document.activeElement).toBe(
+      host.querySelector(".formatted-reader"),
+    );
+    expect(host.querySelector('[role="application"]').hidden).toBe(true);
     press(" ");
-    expect(host.querySelector(".answer-side")).toBeNull();
+    expect(host.querySelector("#card-label").textContent).toBe(
+      "Question — Card 1 of 2",
+    );
     click("Resume keyboard study");
     expect(document.activeElement).toBe(host.querySelector("#study-reader"));
     press(" ");
-    expect(host.querySelector(".answer-side")).not.toBeNull();
-    click("Read card");
-    expect(document.activeElement).toBe(host.querySelector(".answer-side"));
+    expect(host.querySelector(".formatted-reader")).toBeNull();
+    expect(host.querySelector('[role="application"]').hidden).toBe(false);
+    click("Read formatted card");
+    expect(document.activeElement).toBe(
+      host.querySelector(".formatted-reader"),
+    );
+    expect(host.querySelector("#card-content").textContent).toBe(
+      "First answer",
+    );
+    expect(host.querySelectorAll(".study-pane")).toHaveLength(1);
     click("Repeat current question or answer");
     const reader = host.querySelector("#study-reader");
     expect(document.activeElement).toBe(reader);
@@ -259,9 +273,19 @@ describe("continuous keyboard study", () => {
       ),
     );
     expect(host.querySelector('[role="application"]')).toBeNull();
-    expect(document.activeElement).toBe(host.querySelector(".card-side"));
+    expect(document.activeElement).toBe(
+      host.querySelector(".formatted-reader"),
+    );
+    expect(host.querySelector("#card-content").textContent).toBe(
+      "First question",
+    );
     click("Show Answer");
-    expect(document.activeElement).toBe(host.querySelector(".answer-side"));
+    expect(document.activeElement).toBe(
+      host.querySelector(".formatted-reader"),
+    );
+    expect(host.querySelector("#card-content").textContent).toBe(
+      "First answer",
+    );
     expect(host.querySelector("#study-reader")).toBeNull();
   });
   it("blocks typing, paste, cut, and drop without changing the card text", () => {
@@ -298,5 +322,68 @@ describe("continuous keyboard study", () => {
       reader.dispatchEvent(new Event("input", { bubbles: true }));
     });
     expect(reader.value).toBe("Question — Card 1 of 2\nFirst question");
+  });
+  it("keeps reveal and rating controls in the same DOM positions across card changes", () => {
+    act(() => root.render(<Harness />));
+    const reveal = host.querySelector(".reveal button");
+    const ratings = [...host.querySelectorAll(".rating-grid button")];
+    expect(reveal.disabled).toBe(false);
+    expect(ratings.every((button) => button.disabled)).toBe(true);
+    press(" ");
+    expect(host.querySelector(".reveal button")).toBe(reveal);
+    expect(reveal.disabled).toBe(true);
+    expect(ratings.every((button) => !button.disabled)).toBe(true);
+    press("3");
+    expect(host.querySelector(".reveal button")).toBe(reveal);
+    expect([...host.querySelectorAll(".rating-grid button")]).toEqual(ratings);
+    expect(reveal.disabled).toBe(false);
+    expect(ratings.every((button) => button.disabled)).toBe(true);
+  });
+  it("keeps images available in the same pane's optional formatted view", () => {
+    const studyDeck = {
+      ...deck,
+      media: { "diagram.png": new Blob(["image"], { type: "image/png" }) },
+      cards: [
+        {
+          ...deck.cards[0],
+          front:
+            'Read this diagram.<img src="diagram.png" alt="A labeled triangle">',
+        },
+        deck.cards[1],
+      ],
+    };
+    act(() => root.render(<Harness studyDeck={studyDeck} />));
+    expect(host.querySelector("#study-reader").value).toContain(
+      "A labeled triangle",
+    );
+    expect(host.querySelector(".formatted-reader")).toBeNull();
+    click("Read formatted card");
+    expect(host.querySelector(".study-pane img").getAttribute("src")).toBe(
+      "blob:test",
+    );
+    expect(host.querySelector(".study-pane img").getAttribute("alt")).toBe(
+      "A labeled triangle",
+    );
+    expect(host.querySelector('[role="application"]').hidden).toBe(true);
+    click("Resume keyboard study");
+    expect(host.querySelector(".study-pane img")).toBeNull();
+    expect(document.activeElement).toBe(host.querySelector("#study-reader"));
+  });
+  it("reserves the audio controls' layout in mixed-media decks without showing inactive controls", () => {
+    const studyDeck = {
+      ...deck,
+      media: { "voice.mp3": new Blob(["audio"], { type: "audio/mpeg" }) },
+      cards: [
+        { ...deck.cards[0], front: "Listen. [sound:voice.mp3]" },
+        deck.cards[1],
+      ],
+    };
+    act(() => root.render(<Harness studyDeck={studyDeck} />));
+    const controls = host.querySelector(".audio-controls");
+    expect(controls.style.visibility).toBe("visible");
+    press(" ");
+    press("3");
+    expect(host.querySelector(".audio-controls")).toBe(controls);
+    expect(controls.style.visibility).toBe("hidden");
   });
 });
