@@ -81,33 +81,44 @@ describe("continuous keyboard study", () => {
     host.addEventListener("focusin", (e) => focusChanges.push(e.target));
     expect(document.activeElement).toBe(keyboard);
     expect(keyboard.getAttribute("aria-readonly")).toBe("true");
-    expect(keyboard.value).toBe("First question");
-    expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([0, 0]);
+    expect(keyboard.value).toBe("Question — Card 1 of 2\nFirst question");
+    const bodyStart = keyboard.value.indexOf("\n") + 1;
+    expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([
+      bodyStart,
+      bodyStart,
+    ]);
+    expect(host.querySelector('label[for="study-reader"]').textContent).toBe(
+      "Card reader",
+    );
     const announcement = host.querySelector("#study-announcement");
     expect(announcement.getAttribute("aria-live")).toBe("assertive");
     expect(announcement.getAttribute("aria-atomic")).toBe("true");
     expect(announcement.textContent).toBe("");
     finishAnnouncement();
-    expect(announcement.textContent).toBe(
-      "Question. Card 1 of 2. First question",
-    );
-    for (const [key, extra, message] of [
-      [" ", {}, "First answer"],
-      [" ", {}, "Second question"],
-      [" ", {}, "Second answer"],
-      ["1", {}, "Second question"],
-      ["z", { ctrlKey: true }, "Second answer"],
-      ["z", { ctrlKey: true }, "First answer"],
+    expect(announcement.textContent).toBe("First question");
+    for (const [key, extra, message, context] of [
+      [" ", {}, "First answer", "Answer — Card 1 of 2"],
+      [" ", {}, "Second question", "Question — Card 2 of 2"],
+      [" ", {}, "Second answer", "Answer — Card 2 of 2"],
+      ["1", {}, "Second question", "Question — Card 2 of 2"],
+      ["z", { ctrlKey: true }, "Second answer", "Answer — Card 2 of 2"],
+      ["z", { ctrlKey: true }, "First answer", "Answer — Card 1 of 2"],
     ]) {
       press(key, extra);
       expect(document.activeElement).toBe(keyboard);
       expect(host.querySelector("#study-reader")).toBe(keyboard);
-      expect(keyboard.value).toBe(message);
-      expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([0, 0]);
+      expect(keyboard.value).toBe(`${context}\n${message}`);
+      expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([
+        context.length + 1,
+        context.length + 1,
+      ]);
+      expect(host.querySelector('label[for="study-reader"]').textContent).toBe(
+        "Card reader",
+      );
       expect(host.querySelector("#study-announcement")).toBe(announcement);
       expect(announcement.textContent).toBe("");
       finishAnnouncement();
-      expect(announcement.textContent).toContain(message);
+      expect(announcement.textContent).toBe(message);
     }
     expect(focusChanges).toEqual([]);
     expect(
@@ -132,8 +143,12 @@ describe("continuous keyboard study", () => {
     click("Repeat current question or answer");
     const reader = host.querySelector("#study-reader");
     expect(document.activeElement).toBe(reader);
-    expect(reader.value).toBe("First answer");
-    expect([reader.selectionStart, reader.selectionEnd]).toEqual([0, 0]);
+    expect(reader.value).toBe("Answer — Card 1 of 2\nFirst answer");
+    const bodyStart = reader.value.indexOf("\n") + 1;
+    expect([reader.selectionStart, reader.selectionEnd]).toEqual([
+      bodyStart,
+      bodyStart,
+    ]);
   });
   it.each(["1", "2", "3", "4", " "])(
     "announces the revealed answer and next question after rating with %j, without an arrow press",
@@ -143,14 +158,10 @@ describe("continuous keyboard study", () => {
       const announcement = host.querySelector("#study-announcement");
       press(" ");
       finishAnnouncement();
-      expect(announcement.textContent).toBe(
-        "Answer. Card 1 of 2. First answer",
-      );
+      expect(announcement.textContent).toBe("First answer");
       press(key);
       finishAnnouncement();
-      expect(announcement.textContent).toBe(
-        "Question. Card 2 of 2. Second question",
-      );
+      expect(announcement.textContent).toBe("Second question");
       expect(document.activeElement).toBe(reader);
     },
   );
@@ -165,9 +176,9 @@ describe("continuous keyboard study", () => {
     press("z", { ctrlKey: true });
     expect(announcement.textContent).toBe("");
     finishAnnouncement();
-    expect(announcement.textContent).toBe("Answer. Card 1 of 2. First answer");
+    expect(announcement.textContent).toBe("First answer");
     finishAnnouncement();
-    expect(announcement.textContent).toBe("Answer. Card 1 of 2. First answer");
+    expect(announcement.textContent).toBe("First answer");
   });
   it("repeats identical text through the existing live region", () => {
     act(() => root.render(<Harness />));
@@ -237,7 +248,9 @@ describe("continuous keyboard study", () => {
       act(() => document.activeElement.dispatchEvent(event));
       expect(event.defaultPrevented).toBe(false);
     }
-    expect(host.querySelector("#study-reader").value).toBe("First question");
+    expect(host.querySelector("#study-reader").value).toBe(
+      "Question — Card 1 of 2\nFirst question",
+    );
   });
   it("keeps ordinary button and focus behavior when shortcuts are disabled", () => {
     act(() =>
@@ -274,7 +287,7 @@ describe("continuous keyboard study", () => {
       act(() => reader.dispatchEvent(event));
       expect(event.defaultPrevented).toBe(true);
     }
-    expect(reader.value).toBe("First question");
+    expect(reader.value).toBe("Question — Card 1 of 2\nFirst question");
     // Simulate a noncancelable platform/IME input that bypasses beforeinput.
     const nativeSetValue = Object.getOwnPropertyDescriptor(
       HTMLTextAreaElement.prototype,
@@ -284,6 +297,6 @@ describe("continuous keyboard study", () => {
       nativeSetValue.call(reader, "Unexpected edit");
       reader.dispatchEvent(new Event("input", { bubbles: true }));
     });
-    expect(reader.value).toBe("First question");
+    expect(reader.value).toBe("Question — Card 1 of 2\nFirst question");
   });
 });

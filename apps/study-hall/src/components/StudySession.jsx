@@ -55,15 +55,18 @@ export default function StudySession({
         : "No text on this side of the card."),
     [front, back, session.revealed, audio.length],
   );
+  const cardContext = `${session.revealed ? "Answer" : "Question"} — Card ${number} of ${summary.total}`;
+  const readerText = `${cardContext}\n${readingText}`;
+  const readingStart = cardContext.length + 1;
   function focusCurrentText() {
     const reader = keyboard.current;
     if (!reader) return;
     if (document.activeElement !== reader) reader.focus();
-    reader.setSelectionRange(0, 0);
+    reader.setSelectionRange(readingStart, readingStart);
     reader.scrollTop = 0;
   }
   useLayoutEffect(() => {
-    // Keep one text control focused and position native reading at the start.
+    // Start at the card text, with its context one native line above it.
     // Announce changes separately; selection alone is unreliable in JAWS.
     if (settings.shortcuts) {
       setKeyboardActive(true);
@@ -76,6 +79,7 @@ export default function StudySession({
     session.revealed,
     settings.shortcuts,
     readingText,
+    readingStart,
   ]);
   useEffect(() => {
     // Mount the empty live region before inserting text. Clearing it also
@@ -85,9 +89,7 @@ export default function StudySession({
     if (!settings.shortcuts || !keyboardActive || dialogOpen) return;
     const timer = setTimeout(() => {
       if (document.activeElement !== keyboard.current) return;
-      setAnnouncement(
-        `${session.revealed ? "Answer" : "Question"}. Card ${number} of ${summary.total}. ${readingText}`,
-      );
+      setAnnouncement(readingText);
     }, 150);
     return () => clearTimeout(timer);
   }, [
@@ -95,8 +97,6 @@ export default function StudySession({
     session.revision,
     session.revealed,
     readingText,
-    number,
-    summary.total,
     settings.shortcuts,
     keyboardActive,
     dialogOpen,
@@ -197,20 +197,19 @@ export default function StudySession({
         >
           <p id="keyboard-study-help" className="small">
             Space shows the answer, then rates Good. Use 1–4 to rate and Ctrl+Z
-            to undo. Each new question or answer is announced automatically.
-            Arrow keys move through the text; Ctrl+Home returns to its
-            beginning. Escape pauses shortcuts to read the formatted card. Tab
-            moves to the buttons.
+            to undo. Card text is announced automatically. Up Arrow at the start
+            of the text reads the card label and number. Arrow keys move through
+            the text; Ctrl+Home returns to the top. Escape pauses shortcuts to
+            read the formatted card. Tab moves to the buttons.
           </p>
-          <label htmlFor="study-reader" className="reader-label">
-            {session.revealed ? "Answer" : "Question"} — Card {number} of{" "}
-            {summary.total}
+          <label htmlFor="study-reader" className="sr-only">
+            Card reader
           </label>
           <textarea
             id="study-reader"
             className="study-reader"
             ref={keyboard}
-            value={readingText}
+            value={readerText}
             aria-readonly="true"
             inputMode="none"
             spellCheck={false}
@@ -218,7 +217,7 @@ export default function StudySession({
             aria-describedby="keyboard-study-help"
             onFocus={() => setKeyboardActive(true)}
             onChange={(event) => {
-              event.currentTarget.value = readingText;
+              event.currentTarget.value = readerText;
             }}
             onPaste={(event) => event.preventDefault()}
             onCut={(event) => event.preventDefault()}
