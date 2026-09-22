@@ -23,3 +23,9 @@ Search matches fragments of Project and Writings button labels; for example, `t 
 Project and Writings cards share `src/data/siteContent.ts` with the search index. Add buttons to a card's `links` array with a stable unique `id`, `text`, and `href`; they become searchable automatically, including on later carousel pages. Writings cards currently have no links.
 
 Run search tests with `npm test`, the production build with `npm run build`, and the local preview with `npm run dev`.
+
+## Study Hall flashcards
+
+The **Projects → Websites → Study Hall Flashcards** link opens `/study-hall/`. The standalone React/Vite app lives in `apps/study-hall`; see its [README](apps/study-hall/README.md) for importing Anki packages, keyboard controls, accessibility notes, local persistence, and limitations.
+
+Use Node.js 22 or newer. The root `npm run build` first builds Study Hall into `public/study-hall` and then exports the portfolio as before. Cloudflare Pages continues to publish `out`. To work on the flashcard app alone, run `npm install` and `npm run dev` inside `apps/study-hall`. Run its tests there with `npm test`.

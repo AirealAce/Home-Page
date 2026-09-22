@@ -41,3 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+# Study Hall is built from apps/study-hall during deployment.
+/public/study-hall/

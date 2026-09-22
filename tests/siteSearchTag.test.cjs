@@ -161,7 +161,7 @@ test('Backspace removes the tag only when the adjacent text is empty', () => {
   search.change('');
   assert.equal(search.key('Backspace'), true);
   assert.equal(search.tag(), undefined);
-  assert.equal(search.options().length, 28);
+  assert.equal(search.options().length, 29);
 });
 
 test('incomplete and unknown section names remain editable text', () => {
@@ -196,5 +196,5 @@ test('a new section query replaces the tag; clear-all removes both tag and text'
   search.click(search.find(node => node.props?.['aria-label'] === 'Clear search and section filter'));
   assert.equal(search.tag(), undefined);
   assert.equal(search.input().props.value, '');
-  assert.equal(search.options().length, 28);
+  assert.equal(search.options().length, 29);
 });
