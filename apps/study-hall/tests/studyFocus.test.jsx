@@ -18,7 +18,7 @@ const deck = {
     { id: "b", front: "Second question", back: "Second answer" },
   ],
 };
-function Harness({ settings = DEFAULT_SETTINGS }) {
+function Harness({ settings = DEFAULT_SETTINGS, dialogOpen = false }) {
   const [session, setSession] = useState(() => startSession(deck));
   return (
     <StudySession
@@ -29,7 +29,7 @@ function Harness({ settings = DEFAULT_SETTINGS }) {
       onRate={(rating) => setSession((s) => rateCard(s, rating))}
       onUndo={() => setSession(undoRating)}
       onLibrary={() => {}}
-      dialogOpen={false}
+      dialogOpen={dialogOpen}
     />
   );
 }
@@ -51,7 +51,9 @@ const click = (text) =>
       .find((b) => b.textContent.includes(text))
       .click(),
   );
+const finishAnnouncement = () => act(() => vi.advanceTimersByTime(150));
 beforeEach(() => {
+  vi.useFakeTimers();
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   vi.stubGlobal(
     "URL",
@@ -66,12 +68,13 @@ beforeEach(() => {
 });
 afterEach(() => {
   act(() => root.unmount());
+  vi.useRealTimers();
   host.remove();
   vi.unstubAllGlobals();
   delete globalThis.IS_REACT_ACT_ENVIRONMENT;
 });
 describe("continuous keyboard study", () => {
-  it("keeps one text control focused and selects each question or answer across ratings and undo", () => {
+  it("announces each question or answer while retaining focus and positioning reading at the start", () => {
     act(() => root.render(<Harness />));
     const keyboard = host.querySelector("#study-reader");
     const focusChanges = [];
@@ -79,10 +82,15 @@ describe("continuous keyboard study", () => {
     expect(document.activeElement).toBe(keyboard);
     expect(keyboard.getAttribute("aria-readonly")).toBe("true");
     expect(keyboard.value).toBe("First question");
-    expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([
-      0,
-      keyboard.value.length,
-    ]);
+    expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([0, 0]);
+    const announcement = host.querySelector("#study-announcement");
+    expect(announcement.getAttribute("aria-live")).toBe("assertive");
+    expect(announcement.getAttribute("aria-atomic")).toBe("true");
+    expect(announcement.textContent).toBe("");
+    finishAnnouncement();
+    expect(announcement.textContent).toBe(
+      "Question. Card 1 of 2. First question",
+    );
     for (const [key, extra, message] of [
       [" ", {}, "First answer"],
       [" ", {}, "Second question"],
@@ -95,10 +103,11 @@ describe("continuous keyboard study", () => {
       expect(document.activeElement).toBe(keyboard);
       expect(host.querySelector("#study-reader")).toBe(keyboard);
       expect(keyboard.value).toBe(message);
-      expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([
-        0,
-        message.length,
-      ]);
+      expect([keyboard.selectionStart, keyboard.selectionEnd]).toEqual([0, 0]);
+      expect(host.querySelector("#study-announcement")).toBe(announcement);
+      expect(announcement.textContent).toBe("");
+      finishAnnouncement();
+      expect(announcement.textContent).toContain(message);
     }
     expect(focusChanges).toEqual([]);
     expect(
@@ -106,7 +115,7 @@ describe("continuous keyboard study", () => {
         .querySelector('[role="application"]')
         .contains(host.querySelector(".study-card")),
     ).toBe(false);
-    expect(host.querySelector("[aria-live]")).toBeNull();
+    expect(host.querySelectorAll("[aria-live]")).toHaveLength(1);
   });
   it("offers a reading escape that pauses shortcuts and an explicit return", () => {
     act(() => root.render(<Harness />));
@@ -124,10 +133,84 @@ describe("continuous keyboard study", () => {
     const reader = host.querySelector("#study-reader");
     expect(document.activeElement).toBe(reader);
     expect(reader.value).toBe("First answer");
-    expect([reader.selectionStart, reader.selectionEnd]).toEqual([
-      0,
-      reader.value.length,
-    ]);
+    expect([reader.selectionStart, reader.selectionEnd]).toEqual([0, 0]);
+  });
+  it.each(["1", "2", "3", "4", " "])(
+    "announces the revealed answer and next question after rating with %j, without an arrow press",
+    (key) => {
+      act(() => root.render(<Harness />));
+      const reader = host.querySelector("#study-reader");
+      const announcement = host.querySelector("#study-announcement");
+      press(" ");
+      finishAnnouncement();
+      expect(announcement.textContent).toBe(
+        "Answer. Card 1 of 2. First answer",
+      );
+      press(key);
+      finishAnnouncement();
+      expect(announcement.textContent).toBe(
+        "Question. Card 2 of 2. Second question",
+      );
+      expect(document.activeElement).toBe(reader);
+    },
+  );
+  it("announces only the latest side after rapid reveal, rating, and undo", () => {
+    act(() => root.render(<Harness />));
+    const announcement = host.querySelector("#study-announcement");
+    act(() => vi.advanceTimersByTime(100));
+    press(" ");
+    act(() => vi.advanceTimersByTime(100));
+    press("3");
+    act(() => vi.advanceTimersByTime(100));
+    press("z", { ctrlKey: true });
+    expect(announcement.textContent).toBe("");
+    finishAnnouncement();
+    expect(announcement.textContent).toBe("Answer. Card 1 of 2. First answer");
+    finishAnnouncement();
+    expect(announcement.textContent).toBe("Answer. Card 1 of 2. First answer");
+  });
+  it("repeats identical text through the existing live region", () => {
+    act(() => root.render(<Harness />));
+    const announcement = host.querySelector("#study-announcement");
+    finishAnnouncement();
+    const message = announcement.textContent;
+    click("Repeat current question or answer");
+    expect(announcement.textContent).toBe("");
+    finishAnnouncement();
+    expect(announcement.textContent).toBe(message);
+    expect(host.querySelector("#study-announcement")).toBe(announcement);
+  });
+  it("cancels pending speech when reading the formatted card, opening settings, or disabling shortcuts", () => {
+    act(() => root.render(<Harness />));
+    const announcement = host.querySelector("#study-announcement");
+    press("Escape");
+    finishAnnouncement();
+    expect(announcement.textContent).toBe("");
+    click("Resume keyboard study");
+    act(() => root.render(<Harness dialogOpen />));
+    finishAnnouncement();
+    expect(announcement.textContent).toBe("");
+    act(() =>
+      root.render(
+        <Harness settings={{ ...DEFAULT_SETTINGS, shortcuts: false }} />,
+      ),
+    );
+    finishAnnouncement();
+    expect(announcement.textContent).toBe("");
+  });
+  it("does not announce a pending card after focus leaves the reader", () => {
+    act(() => root.render(<Harness />));
+    act(() => host.querySelector("button").focus());
+    finishAnnouncement();
+    expect(host.querySelector("#study-announcement").textContent).toBe("");
+  });
+  it("cleans up pending announcements when leaving the study session", () => {
+    act(() => root.render(<Harness />));
+    // Flush the text control's asynchronous selection events first.
+    act(() => vi.advanceTimersByTime(0));
+    expect(vi.getTimerCount()).toBe(1);
+    act(() => root.render(null));
+    expect(vi.getTimerCount()).toBe(0);
   });
   it("leaves arrows, Home/End, selection, copy, and Tab to the native text control", () => {
     act(() => root.render(<Harness />));

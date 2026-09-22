@@ -17,7 +17,9 @@ export default function StudySession({
     answer = useRef(null),
     keyboard = useRef(null),
     [audioError, setAudioError] = useState(""),
-    [keyboardActive, setKeyboardActive] = useState(true);
+    [keyboardActive, setKeyboardActive] = useState(true),
+    [announcement, setAnnouncement] = useState(""),
+    [repeatRequest, setRepeatRequest] = useState(0);
   const media = useMemo(
     () =>
       Object.fromEntries(
@@ -53,19 +55,19 @@ export default function StudySession({
         : "No text on this side of the card."),
     [front, back, session.revealed, audio.length],
   );
-  function selectCurrentText() {
+  function focusCurrentText() {
     const reader = keyboard.current;
     if (!reader) return;
     if (document.activeElement !== reader) reader.focus();
-    reader.setSelectionRange(0, reader.value.length, "backward");
+    reader.setSelectionRange(0, 0);
     reader.scrollTop = 0;
   }
   useLayoutEffect(() => {
-    // Keep the same native text control focused. Its selection/caret is
-    // exposed to screen readers, and arrow keys retain native text navigation.
+    // Keep one text control focused and position native reading at the start.
+    // Announce changes separately; selection alone is unreliable in JAWS.
     if (settings.shortcuts) {
       setKeyboardActive(true);
-      selectCurrentText();
+      focusCurrentText();
     } else (session.revealed ? answer : question).current?.focus();
     setAudioError("");
   }, [
@@ -75,14 +77,39 @@ export default function StudySession({
     settings.shortcuts,
     readingText,
   ]);
+  useEffect(() => {
+    // Mount the empty live region before inserting text. Clearing it also
+    // lets Repeat announce identical text. Coalesce fast changes so an old
+    // question cannot be announced after its answer or the next card.
+    setAnnouncement("");
+    if (!settings.shortcuts || !keyboardActive || dialogOpen) return;
+    const timer = setTimeout(() => {
+      if (document.activeElement !== keyboard.current) return;
+      setAnnouncement(
+        `${session.revealed ? "Answer" : "Question"}. Card ${number} of ${summary.total}. ${readingText}`,
+      );
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [
+    session.id,
+    session.revision,
+    session.revealed,
+    readingText,
+    number,
+    summary.total,
+    settings.shortcuts,
+    keyboardActive,
+    dialogOpen,
+    repeatRequest,
+  ]);
   function readCard() {
     setKeyboardActive(false);
     (session.revealed ? answer : question).current?.focus();
   }
   function resumeKeyboard() {
     setKeyboardActive(true);
-    keyboard.current?.setSelectionRange(0, 0);
-    selectCurrentText();
+    focusCurrentText();
+    setRepeatRequest((request) => request + 1);
   }
   useEffect(() => {
     const reader = keyboard.current;
@@ -115,6 +142,15 @@ export default function StudySession({
   });
   return (
     <div className="study-view">
+      <div
+        className="sr-only"
+        id="study-announcement"
+        aria-live="assertive"
+        aria-atomic="true"
+        aria-relevant="additions text"
+      >
+        {announcement}
+      </div>
       <div className="study-top">
         <button className="text-button" onClick={onLibrary}>
           ← Pause & return to library
@@ -161,10 +197,10 @@ export default function StudySession({
         >
           <p id="keyboard-study-help" className="small">
             Space shows the answer, then rates Good. Use 1–4 to rate and Ctrl+Z
-            to undo. The reader follows each new question or answer. Arrow keys
-            move through the text; Ctrl+Home returns to its beginning. Escape
-            pauses shortcuts to read the formatted card. Tab moves to the
-            buttons.
+            to undo. Each new question or answer is announced automatically.
+            Arrow keys move through the text; Ctrl+Home returns to its
+            beginning. Escape pauses shortcuts to read the formatted card. Tab
+            moves to the buttons.
           </p>
           <label htmlFor="study-reader" className="reader-label">
             {session.revealed ? "Answer" : "Question"} — Card {number} of{" "}
