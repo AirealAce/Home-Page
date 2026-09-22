@@ -1,4 +1,9 @@
 import { useRef } from "react";
+import {
+  BUNDLED_DECKS,
+  bundledDeckUrl,
+  isBundledDeck,
+} from "../data/bundledDecks";
 export default function DeckLibrary({
   decks,
   busy,
@@ -8,6 +13,9 @@ export default function DeckLibrary({
   history,
   onResults,
   ready,
+  loadingBundled,
+  bundledFailures = [],
+  onRetryBundled,
 }) {
   const file = useRef(null);
   return (
@@ -46,13 +54,34 @@ export default function DeckLibrary({
       <section aria-labelledby="library-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Your collection</p>
+            <p className="eyebrow">Ready to study</p>
             <h2 id="library-title">
               Deck library <span className="count">{decks.length}</span>
             </h2>
           </div>
-          <span className="small">Saved on this device</span>
+          <span className="small">
+            {BUNDLED_DECKS.length} CPACC decks ·{" "}
+            {BUNDLED_DECKS.reduce((total, deck) => total + deck.cardCount, 0)}{" "}
+            cards included
+          </span>
         </div>
+        {loadingBundled && (
+          <p className="small">Loading included CPACC decks…</p>
+        )}
+        {bundledFailures.length > 0 && (
+          <div className="notice">
+            <p role="alert">
+              Could not load: {bundledFailures.join(", ")}. Check your
+              connection and retry. Any decks already loaded are still
+              available.
+            </p>
+            <button disabled={loadingBundled} onClick={onRetryBundled}>
+              {loadingBundled
+                ? "Loading CPACC decks…"
+                : "Retry loading CPACC decks"}
+            </button>
+          </div>
+        )}
         <div className="deck-grid">
           {decks.map((deck, i) => (
             <button
@@ -67,6 +96,11 @@ export default function DeckLibrary({
                 <span className="deck-tag">{deck.cards.length} cards</span>
               </span>
               <span className="deck-name">{deck.name}</span>
+              <span className="small">
+                {isBundledDeck(deck)
+                  ? "Included with this site"
+                  : "Imported on this device"}
+              </span>
               <span className="deck-action">
                 {active?.deckId === deck.id && active.queue.length
                   ? "Resume studying"
@@ -80,10 +114,12 @@ export default function DeckLibrary({
               ＋
             </span>
             <h3>A new stack of possibilities</h3>
-            <p>Bring an Anki deck. We’ll take it from here.</p>
+            <p>
+              Add your own Anki decks. Personal imports stay on this device.
+            </p>
             <button
               className="primary"
-              disabled={busy || !ready}
+              disabled={busy || !ready || loadingBundled}
               onClick={() => file.current.click()}
             >
               {busy ? "Importing…" : "Import Anki Deck"}
@@ -97,7 +133,7 @@ export default function DeckLibrary({
               type="file"
               accept=".apkg"
               multiple
-              disabled={busy || !ready}
+              disabled={busy || !ready || loadingBundled}
               onChange={(e) => {
                 onImport([...e.target.files]);
                 e.target.value = "";
@@ -108,21 +144,37 @@ export default function DeckLibrary({
             </span>
           </div>
         </div>
-        {decks.length === 0 && !busy && (
+        {decks.length === 0 && ready && !busy && !loadingBundled && (
           <p className="empty-note">
-            Your library is ready for its first deck. Choose one or more .apkg
-            files to get started.
+            The included decks have not loaded yet. Retry above, or import your
+            own .apkg files.
           </p>
         )}
+        <details className="deck-downloads">
+          <summary>Download the CPACC Anki files</summary>
+          <p className="small">
+            These same decks are included above, ready to study.
+          </p>
+          <ul>
+            {BUNDLED_DECKS.map((deck) => (
+              <li key={deck.packageId}>
+                <a href={bundledDeckUrl(deck)} download={deck.fileName}>
+                  {deck.name} (.apkg)
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
       </section>
       <aside className="local-note">
         <span aria-hidden="true">◎</span>
         <div>
           <h2>A space that stays yours</h2>
           <p>
-            Decks, media, and progress stay in this browser. No account needed.
-            Clearing this site’s browser data removes them, so keep your
-            original Anki files.
+            The CPACC decks are available to everyone. Your personal imports,
+            progress, and settings are saved only in this browser. Clearing
+            browser data removes your imports and progress; the included CPACC
+            decks load again automatically. No account needed.
           </p>
         </div>
       </aside>

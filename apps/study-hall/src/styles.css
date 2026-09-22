@@ -54,6 +54,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
+summary:focus-visible,
 [tabindex]:focus-visible {
   outline: 3px solid #fff;
   outline-offset: 5px;
@@ -396,6 +397,7 @@ main:focus {
   justify-content: space-between;
   width: 100%;
   margin-top: auto;
+  padding-top: 12px;
   color: var(--muted);
   align-items: center;
 }
@@ -465,6 +467,26 @@ input::file-selector-button {
 .import-tile .small {
   font-size: 0.65rem;
   margin-top: 4px;
+}
+.deck-downloads {
+  margin-top: 28px;
+  padding: 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.deck-downloads summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.deck-downloads[open] summary {
+  margin-bottom: 16px;
+}
+.deck-downloads ul {
+  padding-left: 24px;
+  margin-bottom: 0;
+}
+.deck-downloads li + li {
+  margin-top: 10px;
 }
 .empty-note {
   color: var(--muted);

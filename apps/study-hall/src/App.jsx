@@ -5,6 +5,7 @@ import StudyResults from "./components/StudyResults";
 import KeyboardShortcutsDialog from "./components/KeyboardShortcutsDialog";
 import { storageService as storage } from "./services/storageService";
 import { importApkg } from "./services/apkgParser";
+import { loadBundledDecks, mergeLibraryDecks } from "./services/bundledDecks";
 import { rateCard, startSession, undoRating } from "./services/studyEngine";
 import { DEFAULT_SETTINGS, loadPreferences } from "./services/preferences";
 export default function App() {
@@ -17,6 +18,8 @@ export default function App() {
     [dialog, setDialog] = useState(false),
     [busy, setBusy] = useState(false),
     [ready, setReady] = useState(false),
+    [loadingBundled, setLoadingBundled] = useState(false),
+    [bundledFailures, setBundledFailures] = useState([]),
     [status, setStatus] = useState("Loading your library…"),
     [error, setError] = useState("");
   const main = useRef(null),
@@ -32,6 +35,16 @@ export default function App() {
       );
     return saveQueue.current;
   }
+  async function includePublicDecks(savedDecks) {
+    setLoadingBundled(true);
+    const included = await loadBundledDecks(savedDecks);
+    const libraryDecks = mergeLibraryDecks(savedDecks, included.decks);
+    setDecks(libraryDecks);
+    setBundledFailures(included.failed);
+    setLoadingBundled(false);
+    if (included.added.length) save(() => storage.saveDecks(included.added));
+    return libraryDecks;
+  }
   useEffect(() => {
     Promise.all([
       storage.listDecks(),
@@ -39,13 +52,14 @@ export default function App() {
       storage.getSetting("settings"),
       storage.getSetting("active"),
     ])
-      .then(([d, h, s, a]) => {
-        setDecks(d);
+      .then(async ([d, h, s, a]) => {
+        setStatus("Loading included CPACC decks…");
+        const libraryDecks = await includePublicDecks(d);
         setHistory(h.sort((a, b) => b.completedAt - a.completedAt));
         setSettings(loadPreferences(s));
         if (
           a?.queue?.length &&
-          d.some((x) => x.id === a.deckId) &&
+          libraryDecks.some((x) => x.id === a.deckId) &&
           !h.some((r) => r.id === a.id)
         )
           setActive(a);
@@ -80,7 +94,8 @@ export default function App() {
       }
     }
     try {
-      setDecks(await storage.listDecks());
+      const savedDecks = await storage.listDecks();
+      setDecks((current) => mergeLibraryDecks(current, savedDecks));
     } catch {
       errors.push("Could not reload the library. Please reload the page.");
     }
@@ -202,6 +217,9 @@ export default function App() {
             decks={decks}
             busy={busy}
             ready={ready}
+            loadingBundled={loadingBundled}
+            bundledFailures={bundledFailures}
+            onRetryBundled={() => includePublicDecks(decks)}
             onImport={onImport}
             onStart={start}
             active={active}

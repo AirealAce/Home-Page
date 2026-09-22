@@ -3,9 +3,11 @@ import { it, expect, beforeAll } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
 import initSqlJs from "sql.js";
 import { zipSync, strToU8 } from "fflate";
 import { parsePackage } from "../src/services/apkgCore";
+import { BUNDLED_DECKS } from "../src/data/bundledDecks";
 const require = createRequire(import.meta.url);
 let SQL;
 beforeAll(async () => {
@@ -84,31 +86,26 @@ it("gives actionable errors for newer compressed and invalid packages", () => {
     "No Anki collection",
   );
 });
-it.skipIf(!process.env.CPACC_DECK_DIR)(
-  "imports all six supplied decks with their exact card counts",
-  () => {
-    const counts = {
-      "Categories of Disabilities": 159,
-      "Demographics Strategies and Etiquette": 19,
-      "Laws and Management": 40,
-      "Quiz Questions": 106,
-      "Theoretical Models": 27,
-      "Universal Design": 81,
-    };
-    let total = 0;
-    for (const [name, count] of Object.entries(counts)) {
-      const result = parsePackage(
-        fs.readFileSync(
-          path.join(process.env.CPACC_DECK_DIR, `CPACC - ${name}.apkg`),
-        ),
-        SQL,
-        name,
-      );
-      expect(result.warnings).toEqual([]);
-      expect(result.decks[0].cards).toHaveLength(count);
-      total += result.decks[0].cards.length;
-      expect(result.decks[0].cards[0].front).not.toContain("requires a newer");
-    }
-    expect(total).toBe(432);
-  },
-);
+it("ships all six public packages with matching identities, 432 cards, and their media", () => {
+  let total = 0;
+  let mediaCount = 0;
+  expect(BUNDLED_DECKS).toHaveLength(6);
+  for (const entry of BUNDLED_DECKS) {
+    const bytes = fs.readFileSync(
+      path.join(import.meta.dirname, "../public/decks", entry.fileName),
+    );
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      entry.packageId,
+    );
+    const result = parsePackage(bytes, SQL, entry.packageId);
+    expect(result.warnings).toEqual([]);
+    expect(result.decks).toHaveLength(1);
+    expect(result.decks[0].name).toBe(entry.name);
+    expect(result.decks[0].cards).toHaveLength(entry.cardCount);
+    total += result.decks[0].cards.length;
+    mediaCount += Object.keys(result.decks[0].media).length;
+    expect(result.decks[0].cards[0].front).not.toContain("requires a newer");
+  }
+  expect(total).toBe(432);
+  expect(mediaCount).toBe(3);
+});

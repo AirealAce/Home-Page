@@ -1,6 +1,6 @@
 # Study Hall
 
-A small, accessible Anki study app built with React, Vite, semantic HTML, and IndexedDB. No account, backend, Supabase setup, or environment variables are needed.
+A small, accessible Anki study app built with React, Vite, semantic HTML, and IndexedDB. Six public CPACC decks (432 cards) are included for every visitor. No account, backend, Supabase setup, or environment variables are needed.
 
 ## Run locally
 
@@ -15,13 +15,15 @@ npm run dev
 
 ## Import and study
 
-Choose **Import Anki Deck**, or use the labeled file picker. Multiple `.apkg` files can be selected together. Imports run in a Web Worker: fflate expands the package, SQL.js reads the embedded SQLite database, and the Anki model templates turn notes into cards. `collection.anki21` takes precedence over the compatibility placeholder in `collection.anki2`. Imported cards are never hard-coded into the app.
+Open the app and choose one of the six included CPACC decks. Their original `.apkg` files are committed in `public/decks/`, copied into every build, and served publicly with the site. The library also has download links for using them in Anki. The catalog in `src/data/bundledDecks.js` records filenames, SHA-256 identities, and card counts. The existing worker importer loads missing packages automatically and caches them in IndexedDB. Previously imported identical packages retain their IDs, cards, and saved progress. A failed download leaves other decks available and offers a retry.
+
+To add personal decks, choose **Import Anki Deck**, or use the labeled file picker. Multiple `.apkg` files can be selected together. Personal imports stay in that browser and are not published. Imports run in a Web Worker: fflate expands the package, SQL.js reads the embedded SQLite database, and the Anki model templates turn notes into cards. `collection.anki21` takes precedence over the compatibility placeholder in `collection.anki2`. Cards are read from packages rather than hard-coded into the app.
 
 Text, lists, tables, package images, and `[sound:filename]`/HTML audio are supported. Package media is stored as Blobs in IndexedDB and displayed through temporary object URLs. Imported scripts and styles are removed; remote media is not fetched. An image without original alternative text gets an explicit missing-description notice, not an invented description. Browser-supported audio formats can be replayed, stopped, or optionally autoplayed.
 
 Select a deck, recall the answer, reveal it, and choose Again, Hard, Good, or Easy. Again moves the card to the end of the queue. Hard, Good, and Easy complete the card. Ctrl+Z or the visible **Undo last rating** button reverses the last rating, restores the queue and statistics, and reopens that card with its answer shown. Repeated undo walks backward through ratings in the current session. Undo is also available immediately after completing the final card; saved results are removed atomically when that session reopens. Older completed sessions opened from history cannot be undone. A session ends when all cards have succeeded. The score is the rounded percentage completed on the first attempt; the other totals and the semantic results table show every response separately.
 
-Decks, preferences, the most recent unfinished session, last selected deck, and completed results stay in this browser. Reloading preserves the session, including whether its answer was revealed. Return to the library to resume it. Starting a different deck replaces the single paused session. Clearing site data removes saved data. Keep the original `.apkg` files. Different devices, browsers, profiles, and site domains have separate libraries. Use one study tab at a time.
+Personal imports, preferences, the most recent unfinished session, last selected deck, and completed results stay in this browser. Reloading preserves the session, including whether its answer was revealed. Return to the library to resume it. Starting a different deck replaces the single paused session. Clearing site data removes personal imports and progress; the included CPACC decks reload automatically. Keep original files for personal imports. Different devices, browsers, profiles, and site domains have separate progress and personal imports, but all receive the same public CPACC collection. Use one study tab at a time.
 
 ## Keyboard and screen readers
 
@@ -65,8 +67,8 @@ In `AirealAce/Home-Page`, this source lives in `apps/study-hall`. The root build
 
 ## Validation
 
-The six supplied CPACC packages were imported in the browser and parser tests: Categories 159, Demographics 19, Laws 40, Quiz 106, Theoretical Models 27, Universal Design 81 — **432 cards**, with three packaged images. These personal input files are not distributed with the application.
+The six published CPACC packages are checked by the parser tests: Categories 159, Demographics 19, Laws 40, Quiz 106, Theoretical Models 27, Universal Design 81 — **432 cards**, with three packaged images. Tests verify the committed packages' hashes, deck names, card counts, and media.
 
-For the optional integration test, set `CPACC_DECK_DIR` to the folder containing those packages before `npm test`. Without it, only that local-fixture test is skipped. A generated two-card fixture tests audio, image rendering, Again requeueing, a 50% first-attempt result, and complete per-card statistics in the browser.
+All package tests run directly from the repository without local fixture paths or environment variables. Public-library tests cover first visits, reuse of prior imports, duplicate prevention, failed downloads and retry, and mismatched packages. A generated two-card fixture tests audio, image rendering, Again requeueing, a 50% first-attempt result, and complete per-card statistics in the browser.
 
 References: [Anki export options](https://docs.ankiweb.net/exporting.html), [SQL.js](https://github.com/sql-js/sql.js), [W3C character-key shortcut guidance](https://www.w3.org/WAI/WCAG22/Understanding/character-key-shortcuts), [Cloudflare build image configuration](https://developers.cloudflare.com/pages/configuration/build-image/).
