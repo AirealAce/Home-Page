@@ -161,9 +161,10 @@ export default function StudySession({
         >
           <p id="keyboard-study-help" className="small">
             Space shows the answer, then rates Good. Use 1–4 to rate and Ctrl+Z
-            to undo. New card text is selected below. Arrow keys move through
-            the text; Ctrl+Home returns to its beginning. Escape pauses
-            shortcuts to read the formatted card. Tab moves to the buttons.
+            to undo. The reader follows each new question or answer. Arrow keys
+            move through the text; Ctrl+Home returns to its beginning. Escape
+            pauses shortcuts to read the formatted card. Tab moves to the
+            buttons.
           </p>
           <label htmlFor="study-reader" className="reader-label">
             {session.revealed ? "Answer" : "Question"} — Card {number} of{" "}

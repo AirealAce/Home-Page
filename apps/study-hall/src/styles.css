@@ -596,6 +596,13 @@ input::file-selector-button {
   border-radius: 8px;
   resize: vertical;
   overscroll-behavior: contain;
+  /* Keep the native reading position exposed to assistive technology
+     without displaying an editing caret or a selected-text highlight. */
+  caret-color: transparent;
+}
+.study-reader::selection {
+  color: inherit;
+  background: transparent;
 }
 .text-button {
   padding: 6px 0;

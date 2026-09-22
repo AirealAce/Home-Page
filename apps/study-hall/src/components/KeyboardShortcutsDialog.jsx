@@ -43,7 +43,7 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
       <h2 id="dialog-title">Keyboard & settings</h2>
       <p>
         Every study action also has a visible button. Shortcuts are on by
-        default. Keyboard study selects each new question or answer in a text
+        default. Keyboard study focuses each new question or answer in a text
         reader. Arrow keys move through its text. You can turn shortcuts off to
         use ordinary page navigation throughout.
       </p>
@@ -103,13 +103,14 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
         <p>
           The Keyboard study area asks JAWS and NVDA to pass study keys to the
           app. Focus stays in the same text reader as cards change, with the new
-          question or answer selected. Use arrow keys to read, Shift+arrows to
-          select, Ctrl+Home to return to the beginning, and Ctrl+C to copy. Card
-          text cannot be edited. Press Escape or choose Read card to pause
-          shortcuts and read the full question and answer with normal screen
-          reader navigation. Choose Resume keyboard study to return, or Repeat
-          current question or answer to select it again. Tab and Shift+Tab
-          remain available to leave the area.
+          question or answer selected for reading without a visible caret or
+          highlight. Use arrow keys to read, Shift+arrows to select, Ctrl+Home
+          to return to the beginning, and Ctrl+C to copy. Card text cannot be
+          edited. Press Escape or choose Read card to pause shortcuts and read
+          the full question and answer with normal screen reader navigation.
+          Choose Resume keyboard study to return, or Repeat current question or
+          answer to select it again. Tab and Shift+Tab remain available to leave
+          the area.
         </p>
         {error && (
           <p role="alert" className="notice">
