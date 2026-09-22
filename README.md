@@ -24,8 +24,6 @@ Project and Writings cards share `src/data/siteContent.ts` with the search index
 
 Run search tests with `npm test`, the production build with `npm run build`, and the local preview with `npm run dev`.
 
-## Study Hall flashcards
+## CPACC Study Hall link
 
-The **Projects → Websites → Study Hall Flashcards** link opens `/study-hall/`. The standalone React/Vite app lives in `apps/study-hall`; see its [README](apps/study-hall/README.md) for importing Anki packages, keyboard controls, accessibility notes, local persistence, and limitations.
-
-Use Node.js 22 or newer. The root `npm run build` first builds Study Hall into `public/study-hall` and then exports the portfolio as before. Cloudflare Pages continues to publish `out`. To work on the flashcard app alone, run `npm install` and `npm run dev` inside `apps/study-hall`. Run its tests there with `npm test`.
+The **Projects → Websites → CPACC Study Hall** link opens the independently deployed app at [cpacc-study-hall.pages.dev](https://cpacc-study-hall.pages.dev/). Its source, decks, tests, and build configuration belong to the separate private `AirealAce/CPACC-Study-Hall` repository. This repository builds only the portfolio. The legacy `/study-hall/` address redirects to the independent app.

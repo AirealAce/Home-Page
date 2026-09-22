@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run build:study-hall && next build",
-    "build:study-hall": "npm --prefix apps/study-hall ci --include=dev && npm --prefix apps/study-hall run build -- --base=/study-hall/ --outDir ../../public/study-hall --emptyOutDir",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "node --test tests/siteSearch.test.cjs tests/siteSearchTag.test.cjs tests/profileAnimation.test.cjs"

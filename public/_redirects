@@ -1,0 +1,3 @@
+/study-hall https://cpacc-study-hall.pages.dev/ 302
+/study-hall/ https://cpacc-study-hall.pages.dev/ 302
+/study-hall/* https://cpacc-study-hall.pages.dev/:splat 302

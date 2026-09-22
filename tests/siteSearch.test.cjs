@@ -29,7 +29,7 @@ test('indexes every content button with a unique rendered target ID', () => {
   assert.equal(search('t ha')[0].entry.cardTitle, 'Websites');
   assert.equal(search('t ha')[0].entry.sectionTitle, 'Projects');
   assert.equal(search('CPACC Study Hall')[0].entry.cardTitle, 'Websites');
-  assert.equal(projectCards.find(card => card.id === 'websites').links.find(link => link.id === 'study-hall').href, '/study-hall/');
+  assert.equal(projectCards.find(card => card.id === 'websites').links.find(link => link.id === 'study-hall').href, 'https://cpacc-study-hall.pages.dev/');
 });
 
 test('matches label fragments case-insensitively and ranks exact labels first', () => {
