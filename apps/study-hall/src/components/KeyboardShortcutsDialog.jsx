@@ -43,8 +43,9 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
       <h2 id="dialog-title">Keyboard & settings</h2>
       <p>
         Every study action also has a visible button. Shortcuts are on by
-        default. You can turn them off here if you prefer your screen reader’s
-        usual navigation keys.
+        default. Keyboard study keeps focus in one place and announces each
+        question or answer. You can turn shortcuts off to use ordinary page
+        navigation throughout.
       </p>
       <form onSubmit={save}>
         <label className="check">
@@ -65,12 +66,12 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
         </label>
         <p>
           With shortcuts enabled: <kbd>Space</kbd> or <kbd>Enter</kbd> reveals
-          the answer when the question has focus. After revealing,{" "}
-          <kbd>Space</kbd> rates Good. <kbd>1</kbd> Again, <kbd>2</kbd> Hard,{" "}
-          <kbd>3</kbd> Good, <kbd>4</kbd> Easy are the default rating keys.{" "}
-          <kbd>Ctrl+Z</kbd> (or <kbd>⌘Z</kbd> on Mac) undoes the last rating and
-          returns to that card with its answer shown. Repeated undo steps back
-          through this session’s ratings.
+          the answer in Keyboard study. After revealing, <kbd>Space</kbd> rates
+          Good. <kbd>1</kbd> Again, <kbd>2</kbd> Hard, <kbd>3</kbd> Good,{" "}
+          <kbd>4</kbd> Easy are the default rating keys. <kbd>Ctrl+Z</kbd> (or{" "}
+          <kbd>⌘Z</kbd> on Mac) undoes the last rating and returns to that card
+          with its answer shown. Repeated undo steps back through this session’s
+          ratings.
         </p>
         <p>
           Shortcuts never run in typing fields or dialogs. Buttons and links
@@ -100,9 +101,12 @@ export default function KeyboardShortcutsDialog({ settings, onSave, onClose }) {
           </p>
         </fieldset>
         <p>
-          JAWS or NVDA may reserve these keys in browse mode. Use the buttons,
-          or switch to your screen reader’s forms/focus mode to send study
-          shortcuts to the page. No application mode is forced.
+          The Keyboard study area asks JAWS and NVDA to pass study keys to the
+          app. Focus stays there as cards change. Press Escape or choose Read
+          card to pause shortcuts and read the full question and answer with
+          normal screen reader navigation. Choose Resume keyboard study to
+          return, or Repeat current question or answer to hear it again. Tab and
+          Shift+Tab remain available to leave the area.
         </p>
         {error && (
           <p role="alert" className="notice">
