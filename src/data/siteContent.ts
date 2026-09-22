@@ -34,7 +34,7 @@ export const projectCards: ContentCard[] = [
     links: [
       { id: 'habit-hall', href: 'https://habithall.com', text: 'Habit Hall' },
       { id: 'insert-sight', href: 'https://insertsight.com', text: 'Insert Sight' },
-      { id: 'study-hall', href: '/study-hall/', text: 'Study Hall Flashcards' }
+      { id: 'study-hall', href: '/study-hall/', text: 'CPACC Study Hall' }
     ]
   },
   {

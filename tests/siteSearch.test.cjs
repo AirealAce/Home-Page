@@ -28,7 +28,7 @@ test('indexes every content button with a unique rendered target ID', () => {
   assert.equal(search('t ha')[0].entry.text, 'Habit Hall');
   assert.equal(search('t ha')[0].entry.cardTitle, 'Websites');
   assert.equal(search('t ha')[0].entry.sectionTitle, 'Projects');
-  assert.equal(search('Study Hall Flashcards')[0].entry.cardTitle, 'Websites');
+  assert.equal(search('CPACC Study Hall')[0].entry.cardTitle, 'Websites');
   assert.equal(projectCards.find(card => card.id === 'websites').links.find(link => link.id === 'study-hall').href, '/study-hall/');
 });
 
